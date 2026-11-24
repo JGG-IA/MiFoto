@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF3F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#170C12" media="(prefers-color-scheme: dark)">
+<title>Álbum de la Fiesta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Outfit:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: una sola columna pensada para el celular; grilla de fotos a sangre, barra fija arriba y botón flotante abajo. */
+:root{
+  --bg:#FBF3F5; --surface:#FFFFFF; --ink:#2A1420; --muted:#7D6470; --line:#EEDDE4;
+  --berry:#A3195B; --berry-ink:#FFFFFF; --gold:#B8893B; --scrim:rgba(20,8,14,.94);
+  --shadow:0 10px 30px rgba(110,20,60,.18);
+  --f-script:"Pinyon Script", "Snell Roundhand", cursive;
+  --f-ui:"Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r:16px;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  --gut-l:max(16px, env(safe-area-inset-left,0px)); --gut-r:max(16px, env(safe-area-inset-right,0px));
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#170C12; --surface:#22131B; --ink:#F7E9EF; --muted:#B79AA8; --line:#3A2330;
+    --berry:#F0659F; --berry-ink:#2A0717; --gold:#D9AE62; --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark }
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+img{max-width:100%;display:block}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* ── Bienvenida ── */
+.welcome{min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:28px;
+  padding:calc(var(--safe-t) + 32px) var(--gut-r) calc(var(--safe-b) + 32px) var(--gut-l);
+  background:
+    radial-gradient(120% 60% at 50% 0%, color-mix(in srgb, var(--berry) 16%, transparent), transparent 70%),
+    var(--bg)}
+.crest{text-align:center;display:grid;gap:4px;justify-items:center}
+.crest .xv{font-weight:300;letter-spacing:.5em;text-indent:.5em;text-transform:uppercase;font-size:13px;color:var(--gold)}
+.crest h1{font-family:var(--f-script);font-weight:400;font-size:clamp(64px,20vw,104px);line-height:1;margin:6px 0 0;color:var(--berry)}
+.crest .sub{font-size:20px;font-weight:500;letter-spacing:.02em}
+.crest .meta{color:var(--muted);font-size:14px}
+.rule{width:120px;height:14px;color:var(--gold)}
+.welcome p.msg{text-align:center;color:var(--muted);max-width:34ch;margin:0 auto;text-wrap:balance}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:20px;display:grid;gap:12px;max-width:420px;width:100%;margin:0 auto;box-shadow:var(--shadow)}
+.card label{font-weight:600;font-size:15px}
+.card input{width:100%;font:inherit;font-size:18px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.card input:focus{border-color:var(--berry);outline:none}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.btn{appearance:none;border:0;border-radius:999px;padding:15px 22px;font-weight:600;font-size:17px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.btn-primary{background:var(--berry);color:var(--berry-ink)}
+.btn-primary:disabled{opacity:.55}
+.btn-ghost{background:transparent;border:1.5px solid var(--line)}
+.err{color:#D2344A;font-size:14px;margin:0}
+
+/* ── Álbum ── */
+body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);background:var(--bg);z-index:30}
+.top{position:sticky;top:var(--safe-t);z-index:20;background:color-mix(in srgb, var(--bg) 88%, transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;gap:12px;padding:10px var(--gut-r) 10px var(--gut-l)}
+.brand{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px}
+.brand b{font-family:var(--f-script);font-weight:400;font-size:34px;line-height:1;color:var(--berry);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand span{font-size:12px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+.iconbtn{appearance:none;border:1px solid var(--line);background:var(--surface);width:42px;height:42px;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none}
+.iconbtn svg{width:20px;height:20px}
+.me{appearance:none;border:0;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 4px;display:flex;align-items:center;gap:8px;max-width:44vw;cursor:pointer}
+.me i{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:600;color:#fff;flex:none}
+.me span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-size:14px}
+
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px var(--gut-r) 10px var(--gut-l);flex-wrap:wrap}
+.stats{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+.seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{appearance:none;border:0;background:transparent;padding:7px 14px;border-radius:999px;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--berry);color:var(--berry-ink)}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:0 0 calc(var(--safe-b) + 110px)}
+@media (min-width:640px){.grid{grid-template-columns:repeat(4,1fr);padding-left:var(--gut-l);padding-right:var(--gut-r);gap:6px}}
+@media (min-width:1000px){.grid{grid-template-columns:repeat(6,1fr)}}
+.tile{position:relative;aspect-ratio:1;max-width:100%;background:var(--line);border:0;padding:0;cursor:pointer;overflow:hidden}
+@media (min-width:640px){.tile{border-radius:10px}}
+.tile img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.tile:hover img{transform:scale(1.03)}
+.tile .who{position:absolute;left:0;right:0;bottom:0;padding:14px 6px 5px;font-size:11px;font-weight:500;color:#fff;text-align:left;background:linear-gradient(transparent,rgba(0,0,0,.55));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .hearts{position:absolute;top:5px;right:5px;font-size:11px;font-weight:600;color:#fff;background:rgba(0,0,0,.4);border-radius:999px;padding:2px 7px;display:flex;gap:3px;align-items:center}
+.tile.pending img{opacity:.5}
+.tile.pending::after{content:"";position:absolute;inset:auto 0 0 0;height:4px;background:var(--berry);transform-origin:left;transform:scaleX(var(--p,0));transition:transform .2s}
+
+.empty{margin:40px var(--gut-r) 0 var(--gut-l);padding:40px 20px;border:2px dashed var(--line);border-radius:22px;text-align:center;display:grid;gap:10px;justify-items:center;color:var(--muted)}
+.empty h2{margin:0;color:var(--ink);font-size:20px;font-weight:600}
+.empty svg{width:48px;height:48px;color:var(--gold)}
+
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--safe-b) + 20px);z-index:25;box-shadow:var(--shadow);padding:16px 26px;font-size:17px}
+.fab svg{width:22px;height:22px}
+
+.demo{margin:0;padding:8px var(--gut-r) 8px var(--gut-l);background:color-mix(in srgb, var(--gold) 20%, var(--bg));font-size:13px;text-align:center}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--safe-b) + 92px);z-index:40;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:500;box-shadow:var(--shadow);max-width:calc(100vw - 32px);text-align:center}
+
+/* ── Visor ── */
+.viewer{position:fixed;inset:0;z-index:50;background:var(--scrim);color:#fff;display:flex;flex-direction:column;touch-action:pan-y}
+.v-top,.v-bot{display:flex;align-items:center;gap:10px;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.v-top{padding-top:calc(var(--safe-t) + 10px);padding-bottom:10px}
+.v-bot{padding-top:12px;padding-bottom:calc(var(--safe-b) + 14px);flex-wrap:wrap}
+.v-who{flex:1;min-width:0}
+.v-who b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v-who small{color:rgba(255,255,255,.65);font-variant-numeric:tabular-nums}
+.v-stage{flex:1;min-height:0;display:grid;place-items:center;position:relative;overflow:hidden}
+.v-stage img{max-width:100%;max-height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.v-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:0;width:44px;height:44px;border-radius:50%;color:#fff;cursor:pointer;display:none}
+@media (hover:hover){.v-nav{display:grid;place-items:center}}
+.v-prev{left:max(12px, env(safe-area-inset-left,0px))}.v-next{right:max(12px, env(safe-area-inset-right,0px))}
+.vbtn{appearance:none;border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:10px 16px;display:inline-flex;align-items:center;gap:8px;font-weight:500;cursor:pointer;text-decoration:none;font-size:15px}
+.vbtn svg{width:20px;height:20px}
+.vbtn.liked{background:#F0659F;color:#2A0717}
+.vbtn.danger{background:#D2344A}
+.v-close{background:rgba(255,255,255,.12);border:0;color:#fff;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+.spacer{flex:1}
+
+/* ── Hoja inferior ── */
+.sheet-bg{position:fixed;inset:0;z-index:60;background:rgba(20,8,14,.5);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:22px var(--gut-r) calc(var(--safe-b) + 22px) var(--gut-l);display:grid;gap:14px}
+.sheet h3{margin:0;font-size:20px;font-weight:600}
+.qr{background:#fff;border-radius:16px;padding:14px;width:min(240px,70vw);margin:0 auto}
+.qr svg,.qr img{width:100%;height:auto}
+.linkrow{display:flex;gap:8px}
+.linkrow input{flex:1;min-width:0;font:inherit;font-size:14px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row .btn{flex:1}
+
+.linkbtn{appearance:none;background:none;border:0;padding:6px 0;color:var(--muted);font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:center}
+.iconbtn.admin{border-color:var(--gold);color:var(--gold)}
+
+/* ── Panel de la organizadora ── */
+.panel{position:fixed;inset:0;z-index:55;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.p-top{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;
+  padding:calc(var(--safe-t) + 12px) var(--gut-r) 12px var(--gut-l)}
+.p-top h2{flex:1;margin:0;font-size:19px;font-weight:600}
+.p-top small{display:block;font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.p-body{display:grid;gap:22px;padding:18px var(--gut-r) calc(var(--safe-b) + 32px) var(--gut-l);max-width:640px;margin:0 auto}
+.p-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.p-stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:2px}
+.p-stat b{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.p-stat span{font-size:13px;color:var(--muted)}
+.p-sec{display:grid;gap:10px}
+.p-sec h3{margin:0;font-size:16px;font-weight:600}
+.p-dl{display:grid;gap:8px}
+.progress{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.progress div{height:100%;background:var(--berry);width:0;transition:width .2s}
+.p-guests{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.p-guests li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+.p-guests li:first-child{border-top:0}
+.p-guests i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:600;color:#fff;flex:none;font-size:13px}
+.p-guests .g{flex:1;min-width:0}
+.p-guests .g b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-guests .g span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.minibtn{appearance:none;border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:500;cursor:pointer;flex:none}
+.minibtn.danger{background:#D2344A;border-color:#D2344A;color:#fff}
+.p-empty{color:var(--muted);font-size:14px;padding:14px;text-align:center}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- Bienvenida / registro -->
+<main class="welcome" id="welcome" hidden>
+  <div class="crest">
+    <div class="xv">Quince años</div>
+    <h1 id="w-name">Valentina</h1>
+    <svg class="rule" viewBox="0 0 120 14" aria-hidden="true"><path d="M0 7h46M74 7h46" stroke="currentColor" stroke-width="1"/><path d="M60 1l6 6-6 6-6-6z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+    <div class="sub" id="w-title">Mis XV</div>
+    <div class="meta" id="w-meta"></div>
+  </div>
+  <p class="msg" id="w-msg"></p>
+  <form class="card" id="join">
+    <label for="name-input">¿Cómo te llamas?</label>
+    <input id="name-input" name="name" autocomplete="nickname" maxlength="40" placeholder="Ej: Tía Marta" required>
+    <p class="hint">Tu nombre aparecerá junto a las fotos que subas.</p>
+    <p class="err" id="join-err" hidden></p>
+    <button class="btn btn-primary" id="join-btn" type="submit">Entrar al álbum</button>
+  </form>
+</main>
+
+<!-- Álbum -->
+<div id="album" hidden>
+  <p class="demo" id="demo-banner" hidden>Modo demo: las fotos quedan solo en este dispositivo y se borran al recargar.</p>
+  <header class="top">
+    <div class="top-in">
+      <div class="brand"><b id="a-name">Valentina</b><span>XV</span></div>
+      <button class="iconbtn admin" id="panel-btn" aria-label="Panel de la organizadora" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18M4 18l-1-10 5 4 4-7 4 7 5-4-1 10"/></svg>
+      </button>
+      <button class="iconbtn" id="share-btn" aria-label="Compartir el álbum">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+      </button>
+      <button class="me" id="me-btn" aria-label="Tu perfil"><i id="me-av"></i><span id="me-name"></span></button>
+    </div>
+  </header>
+  <div class="bar">
+    <div class="stats" id="stats"></div>
+    <div class="seg" role="group" aria-label="Filtrar fotos">
+      <button id="f-all" aria-pressed="true">Todas</button>
+      <button id="f-mine" aria-pressed="false">Mis fotos</button>
+    </div>
+  </div>
+  <div class="empty" id="empty" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <h2 id="empty-title">Todavía no hay fotos</h2>
+    <p id="empty-text" style="margin:0">Sé la primera persona en subir una. Toca “Subir fotos”.</p>
+  </div>
+  <section class="grid" id="grid" aria-label="Fotos de la fiesta"></section>
+  <input type="file" id="file" accept="image/*" multiple hidden>
+  <button class="btn btn-primary fab" id="upload-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg>
+    Subir fotos
+  </button>
+</div>
+
+<!-- Visor de fotos -->
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Foto">
+  <div class="v-top">
+    <div class="v-who"><b id="v-name"></b><small id="v-time"></small></div>
+    <button class="v-close" id="v-close" aria-label="Cerrar">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="v-stage" id="v-stage">
+    <img id="v-img" alt="">
+    <button class="v-nav v-prev" id="v-prev" aria-label="Anterior"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="v-nav v-next" id="v-next" aria-label="Siguiente"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="v-bot">
+    <button class="vbtn" id="v-like"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.4h2c.7-1.2 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg><span id="v-likes">0</span></button>
+    <a class="vbtn" id="v-dl" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Descargar</a>
+    <span class="spacer"></span>
+    <button class="vbtn" id="v-del" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span id="v-del-label">Borrar</span></button>
+  </div>
+</div>
+
+<!-- Compartir -->
+<div class="sheet-bg" id="share" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="share-h">
+    <h3 id="share-h">Invita a más gente al álbum</h3>
+    <p class="hint" style="font-size:14px">Muestra este código QR o envía el enlace. Cada invitado entra con su nombre y sube sus fotos.</p>
+    <div class="qr" id="qr"></div>
+    <div class="linkrow"><input id="share-link" readonly aria-label="Enlace del álbum"><button class="btn btn-primary" id="copy-btn" style="padding:12px 16px;font-size:15px">Copiar</button></div>
+    <button class="btn btn-ghost" id="share-close">Cerrar</button>
+  </div>
+</div>
+
+<!-- Perfil -->
+<div class="sheet-bg" id="profile" hidden>
+  <form class="sheet" id="profile-form" role="dialog" aria-modal="true" aria-labelledby="profile-h">
+    <h3 id="profile-h">Tu nombre</h3>
+    <input id="rename-input" maxlength="40" required style="font:inherit;font-size:18px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)">
+    <p class="hint">Si lo cambias, se actualiza en todas tus fotos.</p>
+    <div class="row"><button type="button" class="btn btn-ghost" id="profile-close">Cancelar</button><button class="btn btn-primary" type="submit">Guardar</button></div>
+    <button type="button" class="linkbtn" id="admin-link">Soy la organizadora</button>
+  </form>
+</div>
+
+<!-- Acceso organizadora -->
+<div class="sheet-bg" id="admin-login" hidden>
+  <form class="sheet" id="admin-form" role="dialog" aria-modal="true" aria-labelledby="admin-h">
+    <h3 id="admin-h">Acceso de la organizadora</h3>
+    <p class="hint" style="font-size:14px">Escribe la clave que se configuró al crear el álbum. Este celular quedará como organizador.</p>
+    <input id="admin-pin" type="password" autocomplete="current-password" required style="font:inherit;font-size:18px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)">
+    <p class="err" id="admin-err" hidden></p>
+    <div class="row"><button type="button" class="btn btn-ghost" id="admin-cancel">Cancelar</button><button class="btn btn-primary" id="admin-submit" type="submit">Entrar</button></div>
+  </form>
+</div>
+
+<!-- Panel de la organizadora -->
+<div class="panel" id="panel" hidden role="dialog" aria-modal="true" aria-labelledby="panel-h">
+  <header class="p-top">
+    <h2 id="panel-h"><small>Organizadora</small>Panel del álbum</h2>
+    <button class="iconbtn" id="panel-close" aria-label="Cerrar panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </header>
+  <div class="p-body">
+    <section class="p-stats" id="p-stats" aria-label="Resumen"></section>
+    <section class="p-sec">
+      <h3>Descargar el álbum</h3>
+      <p class="hint" style="font-size:14px">Baja todas las fotos en tamaño completo, ordenadas por hora, dentro de un archivo .zip. Conviene hacerlo desde una computadora o con wifi.</p>
+      <div class="p-dl" id="p-dl"></div>
+      <div class="progress" id="p-prog" hidden><div></div></div>
+      <p class="hint" id="p-prog-text" aria-live="polite" style="font-size:14px"></p>
+    </section>
+    <section class="p-sec">
+      <h3>Invitados que subieron fotos</h3>
+      <p class="hint" style="font-size:14px">Para quitar una foto puntual, ábrela en el álbum y toca Borrar: como organizadora puedes borrar cualquiera.</p>
+      <ul class="p-guests" id="p-guests"></ul>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
