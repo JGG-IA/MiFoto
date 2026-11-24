@@ -1,0 +1,4 @@
+# Netlify: enlaces cortos tipo  tusitio.com/valentina-xv
+# (activar también RUTAS_LIMPIAS = true en config.js)
+/admin        /admin.html   200
+/:evento      /index.html   200

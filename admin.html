@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Consola de eventos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Outfit:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: consola de trabajo; lista de eventos en tarjetas y un formulario a pantalla completa para crear o editar. */
+:root{
+  --bg:#F6F3F5; --surface:#FFFFFF; --ink:#22141B; --muted:#6F5E67; --line:#E6DCE1;
+  --accent:#7A1F4E; --accent-ink:#FFFFFF; --gold:#A87C30; --ok:#1E7A4C; --warn:#B4462F;
+  --shadow:0 8px 24px rgba(60,20,40,.12);
+  --f-script:"Pinyon Script", cursive;
+  --f-ui:"Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  --gut-l:max(16px, env(safe-area-inset-left,0px)); --gut-r:max(16px, env(safe-area-inset-right,0px));
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#141015; --surface:#1F1820; --ink:#F4EAF0; --muted:#B3A2AC; --line:#3A2D36;
+    --accent:#E58AB7; --accent-ink:#22101A; --gold:#D8AE62; --ok:#5CC08C; --warn:#F08A72; --shadow:0 8px 24px rgba(0,0,0,.45); color-scheme:dark }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);background:var(--bg);z-index:30}
+
+.top{position:sticky;top:var(--safe-t);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:960px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:12px var(--gut-r) 12px var(--gut-l)}
+.top h1{margin:0;font-size:18px;font-weight:600;flex:1;min-width:0}
+.top h1 small{display:block;font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.wrap{max-width:960px;margin:0 auto;padding:20px var(--gut-r) calc(var(--safe-b) + 40px) var(--gut-l);display:grid;gap:18px}
+
+.btn{appearance:none;border:0;border-radius:999px;padding:12px 18px;font-weight:600;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn-danger{background:var(--warn);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.btn-sm{padding:8px 12px;font-size:13px;font-weight:500}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;gap:12px}
+.login{max-width:420px;margin:40px auto 0;box-shadow:var(--shadow)}
+.login h2{margin:0;font-size:22px}
+label{font-weight:600;font-size:14px}
+.field{display:grid;gap:6px;min-width:0}
+.field input,.field select,.field textarea{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-size:16px}
+.field textarea{min-height:84px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none}
+.hint{margin:0;font-size:13px;color:var(--muted)}
+.err{margin:0;font-size:14px;color:var(--warn)}
+
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bar h2{margin:0;font-size:20px}
+.totals{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+
+.events{display:grid;gap:12px}
+@media (min-width:760px){.events{grid-template-columns:1fr 1fr}}
+.ev{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:10px;min-width:0}
+.ev-head{display:flex;gap:12px;align-items:flex-start}
+.dot{width:14px;height:14px;border-radius:50%;flex:none;margin-top:8px;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.ev-t{flex:1;min-width:0}
+.ev-t b{display:block;font-size:19px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-t span{font-size:13px;color:var(--muted)}
+.pill{font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px;flex:none}
+.pill.on{background:color-mix(in srgb, var(--ok) 15%, transparent);color:var(--ok)}
+.pill.off{background:color-mix(in srgb, var(--muted) 15%, transparent);color:var(--muted)}
+.ev-nums{display:flex;gap:16px;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.ev-nums b{color:var(--ink)}
+.ev-slug{font-size:13px;color:var(--muted);word-break:break-all}
+.ev-actions{display:flex;flex-wrap:wrap;gap:8px}
+.empty{text-align:center;padding:40px 20px;border:2px dashed var(--line);border-radius:18px;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:18px;margin-bottom:6px}
+
+/* Formulario a pantalla completa */
+.full{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto}
+.full .top{top:0;padding-top:var(--safe-t)}
+.grid2{display:grid;gap:14px}
+@media (min-width:640px){.grid2{grid-template-columns:1fr 1fr}}
+.colors{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink)}
+.colors input[type=color]{width:44px;height:36px;padding:0;border:1px solid var(--line);border-radius:10px;background:none}
+.inline{display:flex;gap:8px;align-items:center}
+.inline input{flex:1;min-width:0}
+.check{display:flex;gap:10px;align-items:center;font-weight:500}
+.check input{width:20px;height:20px}
+.preview{border-radius:18px;padding:22px 16px;text-align:center;background:radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, var(--pv) 18%, transparent), transparent 70%), var(--surface);border:1px solid var(--line);display:grid;gap:4px;justify-items:center}
+.preview .t{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold)}
+.preview .n{font-family:var(--f-script);font-size:56px;line-height:1.1;color:var(--pv)}
+.preview .s{font-weight:500}
+.preview .m{font-size:13px;color:var(--muted)}
+.actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* Datos para entregar */
+.sheet-bg{position:fixed;inset:0;z-index:60;background:rgba(20,8,14,.55);display:flex;align-items:flex-end;justify-content:center}
+@media (min-width:640px){.sheet-bg{align-items:center}}
+.sheet{background:var(--surface);width:100%;max-width:520px;max-height:92vh;overflow-y:auto;border-radius:24px 24px 0 0;padding:22px var(--gut-r) calc(var(--safe-b) + 22px) var(--gut-l);display:grid;gap:14px}
+@media (min-width:640px){.sheet{border-radius:24px}}
+.sheet h3{margin:0;font-size:20px}
+.qr{background:#fff;border-radius:16px;padding:14px;width:min(220px,64vw);margin:0 auto}
+.qr svg{width:100%;height:auto;display:block}
+.kv{display:grid;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kv span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.kv b{font-size:16px;word-break:break-all;font-variant-numeric:tabular-nums}
+.kv b.big{font-size:22px;letter-spacing:.12em}
+.warn{background:color-mix(in srgb, var(--gold) 16%, transparent);border-radius:12px;padding:10px 12px;font-size:14px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--safe-b) + 24px);z-index:80;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:500;box-shadow:var(--shadow);max-width:calc(100vw - 32px);text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <h1><small id="brand"></small>Consola de eventos</h1>
+    <button class="btn btn-primary btn-sm" id="new-btn" hidden>＋ Nuevo evento</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="hint" id="loading">Conectando…</p>
+
+  <!-- Acceso -->
+  <form class="card login" id="login" hidden>
+    <h2>Acceso a la consola</h2>
+    <p class="hint">Escribe la clave maestra de la plataforma. Esta computadora o celular quedará con acceso a la consola.</p>
+    <div class="field">
+      <label for="master">Clave maestra</label>
+      <input id="master" type="password" autocomplete="current-password" required>
+    </div>
+    <p class="err" id="login-err" hidden></p>
+    <button class="btn btn-primary" id="login-btn" type="submit">Entrar</button>
+  </form>
+
+  <!-- Lista de eventos -->
+  <section id="dash" hidden>
+    <div class="bar" style="margin-bottom:12px">
+      <h2>Eventos</h2>
+      <div class="totals" id="totals"></div>
+    </div>
+    <div class="events" id="events"></div>
+    <div class="empty" id="no-events" hidden><b>Todavía no hay eventos</b>Toca “Nuevo evento” para crear el primer álbum.</div>
+  </section>
+</main>
+
+<!-- Formulario de evento -->
+<div class="full" id="editor" hidden role="dialog" aria-modal="true" aria-labelledby="ed-h">
+  <header class="top">
+    <div class="top-in">
+      <h1 id="ed-h"><small>Evento</small><span id="ed-title">Nuevo evento</span></h1>
+      <button class="btn btn-ghost btn-sm" type="button" id="ed-cancel">Cancelar</button>
+    </div>
+  </header>
+  <form class="wrap" id="ed-form">
+    <div class="preview" id="pv">
+      <div class="t" id="pv-tipo"></div>
+      <div class="n" id="pv-nombre"></div>
+      <div class="s" id="pv-titulo"></div>
+      <div class="m" id="pv-meta"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0">Datos del evento</h3>
+      <div class="grid2">
+        <div class="field">
+          <label for="f-tipo">Tipo de evento</label>
+          <select id="f-tipo">
+            <option>Quince años</option><option>Boda</option><option>Cumpleaños</option><option>Bautizo</option>
+            <option>Primera comunión</option><option>Confirmación</option><option>Graduación</option>
+            <option>Aniversario</option><option>Baby shower</option><option>Evento corporativo</option><option>Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-nombre">Nombre principal</label>
+          <input id="f-nombre" required maxlength="40" placeholder="Ej: Valentina · Ana y Luis">
+        </div>
+        <div class="field">
+          <label for="f-titulo">Subtítulo</label>
+          <input id="f-titulo" maxlength="60" placeholder="Ej: Mis XV · Nuestra boda">
+        </div>
+        <div class="field">
+          <label for="f-etiqueta">Etiqueta corta (barra superior)</label>
+          <input id="f-etiqueta" maxlength="12" placeholder="Ej: XV · Boda">
+        </div>
+        <div class="field">
+          <label for="f-fecha">Fecha</label>
+          <input id="f-fecha" type="date">
+        </div>
+        <div class="field">
+          <label for="f-lugar">Lugar</label>
+          <input id="f-lugar" maxlength="80" placeholder="Ej: Salón Los Jazmines">
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-mensaje">Mensaje de bienvenida</label>
+        <textarea id="f-mensaje" maxlength="300" placeholder="Ej: Gracias por acompañarme. Sube tus fotos y armemos juntos el álbum."></textarea>
+      </div>
+      <div class="field">
+        <label>Color del evento</label>
+        <div class="colors" id="swatches"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0">Acceso</h3>
+      <div class="field">
+        <label for="f-slug">Nombre del enlace</label>
+        <input id="f-slug" required pattern="[a-z0-9][a-z0-9\-]{2,40}" maxlength="41" autocapitalize="none" placeholder="valentina-xv">
+        <p class="hint" id="slug-preview"></p>
+      </div>
+      <label class="check"><input type="checkbox" id="f-usecode" checked> Pedir código a los invitados</label>
+      <div class="field" id="code-field">
+        <label for="f-codigo">Código para invitados</label>
+        <div class="inline"><input id="f-codigo" maxlength="12" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.1em"><button class="btn btn-ghost btn-sm" type="button" id="gen-code">Otro</button></div>
+        <p class="hint">Va incluido en el QR, así que quien escanea entra directo. Sirve para que no entre alguien que solo consiguió el enlace.</p>
+      </div>
+      <div class="field">
+        <label for="f-clave">Clave del organizador</label>
+        <div class="inline"><input id="f-clave" readonly placeholder="Se mantiene la clave actual"><button class="btn btn-ghost btn-sm" type="button" id="gen-key">Generar nueva</button></div>
+        <p class="hint">Es para el cliente: con ella entra al panel del álbum (descargar, moderar, cerrar la recepción). Se muestra una sola vez.</p>
+      </div>
+    </div>
+
+    <p class="err" id="ed-err" hidden></p>
+    <div class="actions">
+      <button class="btn btn-ghost" type="button" id="ed-cancel2">Cancelar</button>
+      <button class="btn btn-primary" type="submit" id="ed-save">Guardar evento</button>
+    </div>
+  </form>
+</div>
+
+<!-- Datos para entregar al cliente -->
+<div class="sheet-bg" id="deliver" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dl-h">
+    <h3 id="dl-h">Datos para el cliente</h3>
+    <div class="qr" id="dl-qr"></div>
+    <div class="kv"><span>Enlace del álbum (con código)</span><b id="dl-link"></b></div>
+    <div class="kv" id="dl-code-row"><span>Código para invitados</span><b class="big" id="dl-code"></b></div>
+    <div class="kv" id="dl-key-row"><span>Clave del organizador</span><b class="big" id="dl-key"></b></div>
+    <p class="warn" id="dl-key-warn">Guarda la clave del organizador ahora: no se puede volver a ver. Si se pierde, genera una nueva desde “Editar”.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="dl-copy" style="flex:1">Copiar todo</button>
+      <a class="btn btn-ghost" id="dl-open" target="_blank" rel="noopener" style="flex:1">Abrir álbum</a>
+    </div>
+    <button class="btn btn-ghost" id="dl-close">Cerrar</button>
+  </div>
+</div>
+
+<!-- Borrar evento -->
+<div class="sheet-bg" id="del" hidden>
+  <form class="sheet" id="del-form" role="dialog" aria-modal="true" aria-labelledby="del-h">
+    <h3 id="del-h">Borrar evento</h3>
+    <p style="margin:0">Se borran para siempre el evento, sus <b id="del-n"></b> fotos, los invitados y los me gusta. No se puede deshacer.</p>
+    <div class="field">
+      <label for="del-input">Para confirmar, escribe <b id="del-slug"></b></label>
+      <input id="del-input" autocomplete="off" autocapitalize="none">
+    </div>
+    <p class="hint" id="del-prog"></p>
+    <div style="display:flex;gap:10px"><button type="button" class="btn btn-ghost" id="del-cancel" style="flex:1">Cancelar</button><button class="btn btn-danger" id="del-go" style="flex:1" disabled>Borrar todo</button></div>
+  </form>
+</div>
+
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script type="module" src="./consola.js"></script>
+</body>
+</html>

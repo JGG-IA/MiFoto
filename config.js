@@ -1,20 +1,24 @@
 // ─────────────────────────────────────────────────────────────
-//  CONFIGURACIÓN DE LA FIESTA
-//  Cambia estos datos para cada evento.
+//  CONFIGURACIÓN DE LA PLATAFORMA
+//  Los eventos (nombre, fecha, colores, códigos) se crean en la
+//  consola: admin.html. Aquí solo va lo que es igual para todos.
 // ─────────────────────────────────────────────────────────────
-export const EVENTO = {
-  nombre: "Valentina",            // nombre de la quinceañera
-  titulo: "Mis XV",               // aparece debajo del nombre
-  fecha: "2026-12-12",            // AAAA-MM-DD
-  lugar: "Salón Los Jazmines",    // opcional, puede quedar ""
-  mensaje: "Gracias por acompañarme en esta noche. Sube tus fotos y armemos juntos el álbum de la fiesta.",
+export const MARCA = {
+  nombre: "Productora LAM",   // aparece en la portada y en la consola
+  soporte: "",                // opcional: teléfono o WhatsApp de ayuda que verán los invitados
 };
 
-// ─────────────────────────────────────────────────────────────
-//  CONEXIÓN A SUPABASE (base de datos + almacenamiento de fotos)
-//  Si estos dos valores quedan vacíos, la app funciona en
-//  MODO DEMO: las fotos quedan solo en ese dispositivo y se
-//  pierden al recargar. Ver LEEME.md para crear el proyecto.
-// ─────────────────────────────────────────────────────────────
+// Conexión a Supabase. Si quedan vacíos, la app corre en MODO DEMO.
 export const SUPABASE_URL = "https://tmutsqhtyheemnvwwcfp.supabase.co";
-export const SUPABASE_ANON_KEY = "sb_publishable_pc2ykwhYbkMVFqWDzOlaLw_VNri9BRq"; // clave pública (publishable): es seguro que esté en la página
+export const SUPABASE_ANON_KEY = "sb_publishable_pc2ykwhYbkMVFqWDzOlaLw_VNri9BRq"; // clave pública: es seguro que esté en la página
+
+// true solo si el hosting reescribe rutas (Netlify con el archivo _redirects):
+// permite enlaces tipo  tusitio.com/valentina-xv  además de  tusitio.com/?e=valentina-xv
+export const RUTAS_LIMPIAS = false;
+
+// Evento de ejemplo para el modo demo
+export const EVENTO_DEMO = {
+  id: "demo", slug: "demo", tipo: "Quince años", nombre: "Valentina", etiqueta: "XV", titulo: "Mis XV",
+  fecha: "2026-12-12", lugar: "Salón Los Jazmines", color: "#A3195B", abierto: true, requiere_codigo: false,
+  mensaje: "Gracias por acompañarme en esta noche. Sube tus fotos y armemos juntos el álbum de la fiesta.",
+};

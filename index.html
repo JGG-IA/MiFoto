@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FBF3F5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#170C12" media="(prefers-color-scheme: dark)">
-<title>Álbum de la Fiesta</title>
+<meta name="robots" content="noindex, nofollow">
+<title>Álbum del evento</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Outfit:wght@300;400;500;600;700&display=swap">
@@ -13,7 +14,7 @@
 /* Layout: una sola columna pensada para el celular; grilla de fotos a sangre, barra fija arriba y botón flotante abajo. */
 :root{
   --bg:#FBF3F5; --surface:#FFFFFF; --ink:#2A1420; --muted:#7D6470; --line:#EEDDE4;
-  --berry:#A3195B; --berry-ink:#FFFFFF; --gold:#B8893B; --scrim:rgba(20,8,14,.94);
+  --berry:var(--event,#A3195B); --berry-ink:var(--event-ink,#FFFFFF); --gold:#B8893B; --scrim:rgba(20,8,14,.94);
   --shadow:0 10px 30px rgba(110,20,60,.18);
   --f-script:"Pinyon Script", "Snell Roundhand", cursive;
   --f-ui:"Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -23,7 +24,7 @@
 }
 @media (prefers-color-scheme: dark){
   :root{ --bg:#170C12; --surface:#22131B; --ink:#F7E9EF; --muted:#B79AA8; --line:#3A2330;
-    --berry:#F0659F; --berry-ink:#2A0717; --gold:#D9AE62; --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark }
+    --berry:color-mix(in srgb, var(--event,#A3195B) 55%, #ffffff); --berry-ink:#1E1016; --gold:#D9AE62; --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark }
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
@@ -131,6 +132,12 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
 .row{display:flex;gap:10px;flex-wrap:wrap}
 .row .btn{flex:1}
 
+.closed{margin:0;padding:10px var(--gut-r) 10px var(--gut-l);background:var(--surface);border-bottom:1px solid var(--line);font-size:14px;text-align:center;color:var(--muted)}
+.codebox{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.codebox b{font-size:22px;letter-spacing:.12em;font-variant-numeric:tabular-nums}
+.codebox span{font-size:13px;color:var(--muted)}
+.landing .card{text-align:left}
+.landing h1{font-family:var(--f-ui);font-weight:600;font-size:clamp(28px,8vw,40px);margin:0;color:var(--ink);text-wrap:balance}
 .linkbtn{appearance:none;background:none;border:0;padding:6px 0;color:var(--muted);font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:center}
 .iconbtn.admin{border-color:var(--gold);color:var(--gold)}
 
@@ -166,13 +173,29 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
 </head>
 <body>
 
+<!-- Portada sin evento -->
+<main class="welcome landing" id="landing" hidden>
+  <div class="crest">
+    <div class="xv" id="l-brand"></div>
+    <h1>Álbum compartido del evento</h1>
+  </div>
+  <p class="msg" id="l-msg"></p>
+  <form class="card" id="landing-form">
+    <label for="landing-input">¿Tienes el nombre del álbum?</label>
+    <input id="landing-input" autocomplete="off" autocapitalize="none" placeholder="Ej: valentina-xv" required>
+    <p class="hint">Está en tu invitación, debajo del código QR.</p>
+    <button class="btn btn-primary" type="submit">Abrir álbum</button>
+  </form>
+  <p class="msg" id="l-help" hidden></p>
+</main>
+
 <!-- Bienvenida / registro -->
 <main class="welcome" id="welcome" hidden>
   <div class="crest">
-    <div class="xv">Quince años</div>
-    <h1 id="w-name">Valentina</h1>
+    <div class="xv" id="w-tipo"></div>
+    <h1 id="w-name"></h1>
     <svg class="rule" viewBox="0 0 120 14" aria-hidden="true"><path d="M0 7h46M74 7h46" stroke="currentColor" stroke-width="1"/><path d="M60 1l6 6-6 6-6-6z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
-    <div class="sub" id="w-title">Mis XV</div>
+    <div class="sub" id="w-title"></div>
     <div class="meta" id="w-meta"></div>
   </div>
   <p class="msg" id="w-msg"></p>
@@ -180,6 +203,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
     <label for="name-input">¿Cómo te llamas?</label>
     <input id="name-input" name="name" autocomplete="nickname" maxlength="40" placeholder="Ej: Tía Marta" required>
     <p class="hint">Tu nombre aparecerá junto a las fotos que subas.</p>
+    <div id="code-row" class="card-row" hidden style="display:grid;gap:8px">
+      <label for="code-input">Código del álbum</label>
+      <input id="code-input" autocomplete="off" autocapitalize="characters" maxlength="12" placeholder="Está en tu invitación o en la mesa" style="text-transform:uppercase;letter-spacing:.1em">
+    </div>
     <p class="err" id="join-err" hidden></p>
     <button class="btn btn-primary" id="join-btn" type="submit">Entrar al álbum</button>
   </form>
@@ -190,8 +217,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
   <p class="demo" id="demo-banner" hidden>Modo demo: las fotos quedan solo en este dispositivo y se borran al recargar.</p>
   <header class="top">
     <div class="top-in">
-      <div class="brand"><b id="a-name">Valentina</b><span>XV</span></div>
-      <button class="iconbtn admin" id="panel-btn" aria-label="Panel de la organizadora" hidden>
+      <div class="brand"><b id="a-name"></b><span id="a-tag"></span></div>
+      <button class="iconbtn admin" id="panel-btn" aria-label="Panel de organización" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18M4 18l-1-10 5 4 4-7 4 7 5-4-1 10"/></svg>
       </button>
       <button class="iconbtn" id="share-btn" aria-label="Compartir el álbum">
@@ -200,6 +227,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
       <button class="me" id="me-btn" aria-label="Tu perfil"><i id="me-av"></i><span id="me-name"></span></button>
     </div>
   </header>
+  <p class="closed" id="closed-banner" hidden>El álbum ya no recibe fotos nuevas, pero puedes seguir viéndolo y descargando fotos.</p>
   <div class="bar">
     <div class="stats" id="stats"></div>
     <div class="seg" role="group" aria-label="Filtrar fotos">
@@ -247,6 +275,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
     <h3 id="share-h">Invita a más gente al álbum</h3>
     <p class="hint" style="font-size:14px">Muestra este código QR o envía el enlace. Cada invitado entra con su nombre y sube sus fotos.</p>
     <div class="qr" id="qr"></div>
+    <div class="codebox" id="share-code" hidden><span>Código del álbum<br>(ya va incluido en el QR)</span><b id="share-code-val"></b></div>
     <div class="linkrow"><input id="share-link" readonly aria-label="Enlace del álbum"><button class="btn btn-primary" id="copy-btn" style="padding:12px 16px;font-size:15px">Copiar</button></div>
     <button class="btn btn-ghost" id="share-close">Cerrar</button>
   </div>
@@ -259,15 +288,15 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
     <input id="rename-input" maxlength="40" required style="font:inherit;font-size:18px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)">
     <p class="hint">Si lo cambias, se actualiza en todas tus fotos.</p>
     <div class="row"><button type="button" class="btn btn-ghost" id="profile-close">Cancelar</button><button class="btn btn-primary" type="submit">Guardar</button></div>
-    <button type="button" class="linkbtn" id="admin-link">Soy la organizadora</button>
+    <button type="button" class="linkbtn" id="admin-link">Soy quien organiza</button>
   </form>
 </div>
 
 <!-- Acceso organizadora -->
 <div class="sheet-bg" id="admin-login" hidden>
   <form class="sheet" id="admin-form" role="dialog" aria-modal="true" aria-labelledby="admin-h">
-    <h3 id="admin-h">Acceso de la organizadora</h3>
-    <p class="hint" style="font-size:14px">Escribe la clave que se configuró al crear el álbum. Este celular quedará como organizador.</p>
+    <h3 id="admin-h">Acceso para quien organiza</h3>
+    <p class="hint" style="font-size:14px">Escribe la clave que se configuró al crear el álbum. Este celular quedará con acceso al panel.</p>
     <input id="admin-pin" type="password" autocomplete="current-password" required style="font:inherit;font-size:18px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)">
     <p class="err" id="admin-err" hidden></p>
     <div class="row"><button type="button" class="btn btn-ghost" id="admin-cancel">Cancelar</button><button class="btn btn-primary" id="admin-submit" type="submit">Entrar</button></div>
@@ -277,13 +306,23 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
 <!-- Panel de la organizadora -->
 <div class="panel" id="panel" hidden role="dialog" aria-modal="true" aria-labelledby="panel-h">
   <header class="p-top">
-    <h2 id="panel-h"><small>Organizadora</small>Panel del álbum</h2>
+    <h2 id="panel-h"><small>Organización</small>Panel del álbum</h2>
     <button class="iconbtn" id="panel-close" aria-label="Cerrar panel">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </header>
   <div class="p-body">
     <section class="p-stats" id="p-stats" aria-label="Resumen"></section>
+    <section class="p-sec">
+      <h3>Invitar</h3>
+      <div class="codebox"><span>Código para invitados</span><b id="p-code"></b></div>
+      <button class="btn btn-ghost" id="p-share-btn">Ver QR y enlace para compartir</button>
+    </section>
+    <section class="p-sec">
+      <h3>Recepción de fotos</h3>
+      <p class="hint" id="p-open-state" style="font-size:14px"></p>
+      <button class="btn btn-ghost" id="p-open-btn"></button>
+    </section>
     <section class="p-sec">
       <h3>Descargar el álbum</h3>
       <p class="hint" style="font-size:14px">Baja todas las fotos en tamaño completo, ordenadas por hora, dentro de un archivo .zip. Conviene hacerlo desde una computadora o con wifi.</p>
@@ -293,7 +332,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
     </section>
     <section class="p-sec">
       <h3>Invitados que subieron fotos</h3>
-      <p class="hint" style="font-size:14px">Para quitar una foto puntual, ábrela en el álbum y toca Borrar: como organizadora puedes borrar cualquiera.</p>
+      <p class="hint" style="font-size:14px">Para quitar una foto puntual, ábrela en el álbum y toca Borrar: desde aquí puedes borrar cualquiera.</p>
       <ul class="p-guests" id="p-guests"></ul>
     </section>
   </div>

@@ -1,71 +1,65 @@
-# Álbum de la Fiesta — XV de Valentina
+# Plataforma de álbumes compartidos para eventos
 
-App web para que los invitados suban sus fotos y todos vean el álbum común, en vivo, desde el celular.
+Cada evento (XV, boda, cumpleaños…) tiene su propio álbum: los invitados escanean un QR,
+escriben su nombre y suben fotos desde el celular. Todos ven el álbum común en vivo.
+Un solo sitio y un solo proyecto de Supabase atienden a todos los clientes.
 
 ## Archivos
 
 | Archivo | Para qué sirve |
 |---|---|
-| `index.html` | Pantallas y diseño |
-| `app.js` | Lógica: registro, subida, visor, me gusta, QR |
-| `config.js` | **Lo único que se edita por fiesta**: nombre, fecha, lugar, mensaje y la conexión a Supabase |
-| `supabase.sql` | Crea la base de datos y el almacenamiento de fotos |
-| `serve.js` | Servidor para probar en la computadora (`node serve.js`) |
+| `index.html`, `app.js` | El álbum que usan los invitados |
+| `admin.html`, `consola.js` | La **consola**: crear y administrar eventos |
+| `config.js` | Nombre de la marca, conexión a Supabase |
+| `supabase.sql` | Crea la base de datos, las reglas de seguridad y el almacenamiento |
+| `_redirects` | Solo para Netlify: enlaces cortos `tusitio.com/valentina-xv` |
 
-Sin datos de Supabase la app corre en **modo demo** (fotos solo en ese dispositivo).
+## Cómo se usa
 
-## Poner la app en línea para la fiesta (≈15 minutos, gratis)
+### Crear un evento (tú, en la consola)
+1. Abrir `admin.html` (por ejemplo `https://tusitio/admin.html`) y entrar con la **clave maestra**.
+2. **＋ Nuevo evento** → tipo, nombre, subtítulo, fecha, lugar, mensaje y color.
+   El nombre del enlace, el código para invitados y la clave del organizador se generan solos.
+3. **Guardar** → aparece la ficha **Datos para el cliente**: QR, enlace, código y clave.
+   **Copiar todo** y enviárselo al cliente. La clave del organizador se muestra una sola vez
+   (si se pierde: **Editar → Generar nueva**).
 
-### 1. Base de datos y fotos (Supabase)
-1. Crear una cuenta en https://supabase.com y un proyecto nuevo (plan Free).
-2. **Authentication → Sign In / Providers** → activar **Allow anonymous sign-ins**.
-   (Así cada invitado "crea su usuario" solo con su nombre, sin email ni contraseña.)
+### Invitados
+Escanean el QR (ya trae el código), escriben su nombre y suben fotos.
+Si alguien entra solo con el enlace, el álbum le pide el código.
+
+### Quien organiza el evento (tu cliente)
+En el álbum: tocar su nombre (arriba a la derecha) → **Soy quien organiza** → escribir la clave.
+Aparece la corona con el panel: resumen, QR para compartir, **cerrar o abrir la recepción de fotos**,
+descargar todo en .zip y borrar fotos.
+
+### Desde la consola, por evento
+Ver fotos e invitados, editar datos y colores, cerrar o abrir la recepción, abrir el álbum,
+y **borrar el evento con todas sus fotos** (se confirma escribiendo el nombre del enlace).
+
+## Seguridad y privacidad
+- Las fotos son **privadas**: solo las ven los invitados del evento (enlaces firmados que vencen).
+- Cada evento tiene su código; nadie entra solo adivinando el enlace.
+- Las claves se comprueban en el servidor: la del organizador se guarda cifrada y la maestra
+  en un esquema privado. Ninguna clave está en el código publicado.
+- Las páginas piden a los buscadores no indexarse.
+
+## Instalación desde cero (nuevo proyecto de Supabase)
+1. Crear el proyecto en https://supabase.com.
+2. **Authentication → Sign In / Providers** → activar **Allow anonymous sign-ins** → **Save changes**.
 3. **SQL Editor** → pegar todo `supabase.sql` → **Run**.
-4. En una consulta nueva del SQL Editor, definir la **clave de la organizadora** (mínimo 10 caracteres) y tocar **Run**:
-   `update privado.config set clave = 'TU-CLAVE-SECRETA';`
-   ⚠ No escribas la clave en ningún archivo del repositorio: GitHub los muestra públicamente.
+4. En otra consulta, definir la clave maestra (mínimo 10 caracteres) y **Run**:
+   `update privado.config set clave = 'TU-CLAVE-MAESTRA' where true;`
 5. **Project Settings → API Keys** → copiar la URL del proyecto y la **Publishable key** (`sb_publishable_…`)
-   y pegarlas en `config.js` (`SUPABASE_URL` y `SUPABASE_ANON_KEY`).
-   La clave *publishable* es pública por diseño; la seguridad la dan las reglas del SQL.
-   **Nunca** pegues la **Secret key** (`sb_secret_…`).
+   en `config.js`. **Nunca** uses la **Secret key** (`sb_secret_…`).
+6. Publicar los archivos en el hosting.
 
-### 2. Publicar la página (GitHub Pages)
-1. En https://github.com/new crear un repositorio **público** (p. ej. `album-xv`).
-2. En el repositorio: **Add file → Upload files** → arrastrar `index.html`, `app.js`, `config.js`,
-   `supabase.sql`, `LEEME.md` y `.nojekyll` → **Commit changes**.
-3. **Settings → Pages** → Source: *Deploy from a branch* → Branch: `main` / `(root)` → **Save**.
-4. En 1–2 minutos queda en `https://TU-USUARIO.github.io/album-xv/`.
+## Hosting
+- **Netlify** (recomendado para uso comercial): arrastrar la carpeta en https://app.netlify.com/drop
+  o conectar el repositorio de GitHub. Para enlaces cortos, poner `RUTAS_LIMPIAS = true` en `config.js`.
+- **GitHub Pages**: sirve para pruebas; sus reglas no permiten usarlo para un servicio comercial.
 
-Para cambiar algo después (por ejemplo pegar los datos de Supabase en `config.js`):
-abrir el archivo en GitHub → ícono del lápiz → editar → **Commit changes**. La página se actualiza sola en 1–2 minutos.
-
-### 3. En la fiesta
-- Abrir el álbum, tocar el ícono de QR arriba y mostrar o imprimir el código en las mesas.
-- Cada invitado escanea, escribe su nombre y sube fotos (cámara o galería, varias a la vez).
-
-## Cómo funciona
-- Las fotos se achican en el celular antes de subir (máx. 2048 px + miniatura de 480 px): suben rápido y ocupan ~400 KB.
-  El plan gratis de Supabase (1 GB) alcanza para unas 2.000 fotos.
-- Todos ven todas las fotos; cada uno puede borrar solo las suyas.
-- El usuario queda guardado en el celular: si cierra y vuelve a abrir, entra directo.
-- Las fotos nuevas aparecen solas en todos los celulares.
-
-## Para otra fiesta
-Crear otro proyecto de Supabase (o vaciar las tablas), cambiar `config.js` y volver a publicar.
-
-## Panel de la organizadora
-1. En el álbum, tocar tu nombre (arriba a la derecha) → **Soy la organizadora** → escribir la clave.
-2. Ese celular queda como organizador para siempre y aparece el ícono de **corona** arriba.
-
-Desde el panel se puede:
-- Ver el resumen: fotos, invitados y "me gusta".
-- **Descargar todo el álbum** en .zip, en tamaño completo y ordenado por hora
-  (`0001_2215_Tia-Marta.jpg`). Si hay más de 150 fotos, se divide en partes de 150.
-- Ver cuántas fotos subió cada invitado y **borrar todas las de una persona** (hay que tocar dos veces para confirmar).
-- Borrar **cualquier foto puntual** desde el visor (el botón Borrar aparece en todas).
-
-La clave se comprueba en el servidor; no aparece en el código de la página.
-Si hay que cambiarla después: en el SQL Editor ejecutar
-`update privado.config set clave = 'NUEVA-CLAVE';`
-
-En modo demo la clave es `1234`.
+## Límites del plan gratis de Supabase
+1 GB de fotos (≈2.000 en total), 5 GB de descarga al mes, y el proyecto se pausa tras 1 semana sin uso.
+Con clientes reales conviene el plan Pro (25 USD/mes): 100 GB de fotos, 250 GB de descarga, sin pausas.
+Borra los eventos viejos desde la consola para liberar espacio.
