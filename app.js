@@ -69,7 +69,7 @@ async function resize(file, max, quality) {
 /* ───────────────────────── backend: Supabase ───────────────────────── */
 
 async function supabaseBackend() {
-  await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js");
+  await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js");
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const bucket = sb.storage.from("fotos");
   const pub = (p) => bucket.getPublicUrl(p).data.publicUrl;
@@ -114,7 +114,7 @@ async function supabaseBackend() {
     },
     async list() {
       const [p, l] = await Promise.all([
-        sb.from("photos").select("id,user_id,path,thumb_path,created_at,guests(name)").order("created_at", { ascending: false }).limit(2000),
+        sb.from("photos").select("id,user_id,path,thumb_path,created_at,guests!photos_user_id_fkey(name)").order("created_at", { ascending: false }).limit(2000),
         sb.from("likes").select("photo_id,user_id").limit(20000),
       ]);
       if (p.error) throw p.error;

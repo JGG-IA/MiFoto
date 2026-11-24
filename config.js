@@ -16,5 +16,5 @@ export const EVENTO = {
 //  MODO DEMO: las fotos quedan solo en ese dispositivo y se
 //  pierden al recargar. Ver LEEME.md para crear el proyecto.
 // ─────────────────────────────────────────────────────────────
-export const SUPABASE_URL = "";       // ej: "https://abcd1234.supabase.co"
-export const SUPABASE_ANON_KEY = "";  // la clave "anon public" del proyecto
+export const SUPABASE_URL = "https://tmutsqhtyheemnvwwcfp.supabase.co";
+export const SUPABASE_ANON_KEY = "sb_publishable_pc2ykwhYbkMVFqWDzOlaLw_VNri9BRq"; // clave pública (publishable): es seguro que esté en la página

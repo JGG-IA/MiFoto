@@ -20,14 +20,14 @@ Sin datos de Supabase la app corre en **modo demo** (fotos solo en ese dispositi
 1. Crear una cuenta en https://supabase.com y un proyecto nuevo (plan Free).
 2. **Authentication → Sign In / Providers** → activar **Allow anonymous sign-ins**.
    (Así cada invitado "crea su usuario" solo con su nombre, sin email ni contraseña.)
-3. **SQL Editor** → pegar todo `supabase.sql`.
-4. Ahí mismo, en el editor, reemplazar `'CAMBIA-ESTA-CLAVE'` por la **clave de la organizadora**
-   (mínimo 10 caracteres) y tocar **Run**.
-   ⚠ No escribas la clave en el archivo `supabase.sql` del repositorio: GitHub lo muestra públicamente.
-5. **Project Settings → API** → copiar **Project URL** y la clave **anon public**
+3. **SQL Editor** → pegar todo `supabase.sql` → **Run**.
+4. En una consulta nueva del SQL Editor, definir la **clave de la organizadora** (mínimo 10 caracteres) y tocar **Run**:
+   `update privado.config set clave = 'TU-CLAVE-SECRETA';`
+   ⚠ No escribas la clave en ningún archivo del repositorio: GitHub los muestra públicamente.
+5. **Project Settings → API Keys** → copiar la URL del proyecto y la **Publishable key** (`sb_publishable_…`)
    y pegarlas en `config.js` (`SUPABASE_URL` y `SUPABASE_ANON_KEY`).
-   La clave *anon* es pública por diseño; la seguridad la dan las reglas del SQL.
-   **Nunca** pegues la clave `service_role`.
+   La clave *publishable* es pública por diseño; la seguridad la dan las reglas del SQL.
+   **Nunca** pegues la **Secret key** (`sb_secret_…`).
 
 ### 2. Publicar la página (GitHub Pages)
 1. En https://github.com/new crear un repositorio **público** (p. ej. `album-xv`).

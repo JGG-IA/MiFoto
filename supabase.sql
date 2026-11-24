@@ -35,6 +35,8 @@ alter table public.guests enable row level security;
 alter table public.photos enable row level security;
 alter table public.likes  enable row level security;
 
+grant select, insert, update, delete on public.guests, public.photos, public.likes to authenticated;
+
 create policy "ver invitados"      on public.guests for select to authenticated using (true);
 create policy "crear mi usuario"   on public.guests for insert to authenticated with check (id = auth.uid());
 create policy "editar mi usuario"  on public.guests for update to authenticated using (id = auth.uid()) with check (id = auth.uid());
@@ -55,6 +57,8 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values ('fotos', 'fotos', true, 10485760, array['image/jpeg'])
 on conflict (id) do nothing;
 
+create policy "ver archivos del album" on storage.objects for select to authenticated
+  using (bucket_id = 'fotos');
 create policy "subir a mi carpeta" on storage.objects for insert to authenticated
   with check (bucket_id = 'fotos' and (storage.foldername(name))[1] = auth.uid()::text);
 create policy "borrar de mi carpeta" on storage.objects for delete to authenticated
@@ -62,21 +66,23 @@ create policy "borrar de mi carpeta" on storage.objects for delete to authentica
 
 -- ════════════════════════════════════════════════════════════
 --  ACCESO DE LA ORGANIZADORA
---  ⚠ Cambia la clave de abajo DENTRO DEL SQL EDITOR DE SUPABASE,
---    justo antes de tocar Run. NO la guardes en este archivo:
---    está publicado en GitHub y cualquiera podría leerla.
+--  ⚠ La clave NO va en este archivo (está publicado en GitHub).
+--    Después de ejecutar todo, ejecuta aparte en el SQL Editor:
+--      update privado.config set clave = 'TU-CLAVE-SECRETA';
 --    (mínimo 10 caracteres, que no sea fácil de adivinar).
 -- ════════════════════════════════════════════════════════════
 create schema if not exists privado;   -- este esquema NO es visible desde la app
 create table if not exists privado.config (clave text not null);
-delete from privado.config;
-insert into privado.config (clave) values ('CAMBIA-ESTA-CLAVE');
+alter table privado.config enable row level security;   -- sin reglas: nadie la lee desde la app
+insert into privado.config (clave)
+  select 'CAMBIA-ESTA-CLAVE' where not exists (select 1 from privado.config);
 
 create table if not exists public.admins (
   user_id uuid primary key references auth.users on delete cascade,
   created_at timestamptz not null default now()
 );
 alter table public.admins enable row level security;
+grant select on public.admins to authenticated;
 create policy "ver si soy organizadora" on public.admins for select to authenticated using (user_id = auth.uid());
 
 -- ¿El usuario actual es organizadora?
@@ -91,7 +97,7 @@ language plpgsql security definer set search_path = public, privado as $$
 begin
   if auth.uid() is null then return false; end if;
   if exists (select 1 from privado.config c
-             where c.clave = pin and c.clave <> 'CAMBIA-ESTA-CLAVE' and char_length(c.clave) >= 6) then
+             where c.clave = pin and c.clave not like 'CAMBIA-ESTA%' and char_length(c.clave) >= 6) then
     insert into public.admins (user_id) values (auth.uid()) on conflict do nothing;
     return true;
   end if;
