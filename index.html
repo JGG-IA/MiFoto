@@ -257,7 +257,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
 @keyframes hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .jg-txt{flex:1;min-width:0;display:grid;gap:4px}
 .jg-k{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:10px}
-.jg-k::before{content:"";width:22px;height:1px;background:var(--cyan)}
+.jg-n{display:inline-block;justify-self:start;text-decoration:none;transition:filter .2s, transform .2s}.jg-n:hover{filter:drop-shadow(0 0 10px rgba(53,230,242,.7));transform:translateX(3px)}.jg-n:focus-visible{outline:2px solid #35e6f2;outline-offset:4px}.jg-k::before{content:"";width:22px;height:1px;background:var(--cyan)}
 .jg-n{font-family:"Michroma","Eurostile","Arial Black",sans-serif;font-size:clamp(18px,4.6vw,24px);letter-spacing:.06em;margin:0;line-height:1.2;
   background:linear-gradient(180deg,#fff 0%,#cfe6ff 55%,#7d93b8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .jg-s{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;color:var(--mute-jg);text-transform:uppercase}
@@ -360,10 +360,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
     <img class="jg-logo" src="https://jgg-ia.github.io/portafolio/logo.png" alt="Logo JG" width="84" height="60" loading="lazy">
     <div class="jg-txt">
       <span class="jg-k">Desarrollado por</span>
-      <p class="jg-n">JULIÁN GARCÍA</p>
+      <a class="jg-n" href="https://jgg-ia.github.io/portafolio/" target="_blank" rel="noopener">JULIÁN GARCÍA</a>
       <span class="jg-s">Multimedia producer · Technology · Artificial intelligence</span>
     </div>
-    <a class="jg-a" href="https://jgg-ia.github.io/portafolio/" target="_blank" rel="noopener">Ver portafolio →</a>
   </div>
 </footer>
 
