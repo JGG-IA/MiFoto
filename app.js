@@ -69,6 +69,33 @@ function confetti() {
     if (k < 1) requestAnimationFrame(frame); else c.hidden = true;
   })(t0);
 }
+/* Intro: logo JG y, como el disparo de una cámara, pasa a la pantalla principal.
+   Se muestra una vez por visita (al recargar no se repite). Tocar la pantalla la salta. */
+function runIntro() {
+  const el = $("intro");
+  const ready = () => document.body.classList.remove("wait");
+  let seen = false;
+  try { seen = sessionStorage.getItem("mifoto-intro") === "1"; } catch {}
+  if (!el || calm || seen) { el?.remove(); ready(); return; }
+  try { sessionStorage.setItem("mifoto-intro", "1"); } catch {}
+  let t1, t2, started = false;
+  const start = () => {
+    if (started) return; started = true;
+    el.classList.add("go");
+    t1 = setTimeout(ready, 2400);          // la página arranca justo cuando se abre el obturador
+    t2 = setTimeout(() => el.remove(), 3100);
+  };
+  const img = el.querySelector("img");
+  if (img.complete && img.naturalWidth) start();
+  else { img.onload = start; img.onerror = start; setTimeout(start, 1200); }
+  el.addEventListener("click", () => {
+    clearTimeout(t1); clearTimeout(t2);
+    el.classList.add("out"); ready();
+    setTimeout(() => el.remove(), 320);
+  });
+}
+runIntro();
+
 function heartBurst() {
   if (calm) return;
   const b = document.createElement("div"); b.className = "burst";

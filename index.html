@@ -246,34 +246,84 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
 @keyframes bump{0%{transform:scale(1.5);color:var(--berry)}100%{transform:scale(1)}}
 #confetti{position:fixed;inset:0;z-index:90;pointer-events:none}
 
-/* ══ Firma JG (estilo del portafolio) ══ */
-.jg{--night:#05080f;--line-jg:rgba(120,200,255,.16);--ink-jg:#e8f3ff;--mute-jg:#8ea3c2;--cyan:#35e6f2;--violet:#a07bff;--magenta:#d36cff;
-  position:relative;z-index:1;background:radial-gradient(90% 140% at 50% 0%, rgba(53,230,242,.10), transparent 60%), var(--night);color:var(--ink-jg);
-  border-top:1px solid var(--line-jg);overflow:hidden;color-scheme:dark}
-.jg::before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);animation:scan 4s linear infinite}
-@keyframes scan{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-.jg-in{max-width:960px;margin:0 auto;padding:26px var(--gut-r) calc(var(--safe-b) + 26px) var(--gut-l);display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.jg-logo{width:84px;height:auto;flex:none;filter:drop-shadow(0 0 14px rgba(53,230,242,.45)) drop-shadow(0 0 22px rgba(160,123,255,.35));animation:hover 5s ease-in-out infinite}
-@keyframes hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.jg-txt{flex:1;min-width:0;display:grid;gap:4px}
-.jg-k{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:10px}
-.jg-n{display:inline-block;justify-self:start;text-decoration:none;transition:filter .2s, transform .2s}.jg-n:hover{filter:drop-shadow(0 0 10px rgba(53,230,242,.7));transform:translateX(3px)}.jg-n:focus-visible{outline:2px solid #35e6f2;outline-offset:4px}.jg-k::before{content:"";width:22px;height:1px;background:var(--cyan)}
-.jg-n{font-family:"Michroma","Eurostile","Arial Black",sans-serif;font-size:clamp(18px,4.6vw,24px);letter-spacing:.06em;margin:0;line-height:1.2;
-  background:linear-gradient(180deg,#fff 0%,#cfe6ff 55%,#7d93b8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.jg-s{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;color:var(--mute-jg);text-transform:uppercase}
-.jg-a{font-family:"Outfit",system-ui,sans-serif;font-weight:600;font-size:14px;color:#05080f;text-decoration:none;border-radius:999px;padding:11px 18px;flex:none;
-  background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 18px rgba(53,230,242,.35);transition:transform .2s, box-shadow .2s}
-.jg-a:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(160,123,255,.55)}
-.jg-a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+/* ══ Firma (discreta) ══ */
+.jg{position:relative;z-index:1;border-top:1px solid var(--line);background:var(--bg)}
+.jg-in{max-width:960px;margin:0 auto;padding:14px var(--gut-r) calc(var(--safe-b) + 14px) var(--gut-l);display:flex;align-items:center;justify-content:center;gap:8px;opacity:.7;transition:opacity .2s}
+.jg-in:hover,.jg-in:focus-within{opacity:1}
+.jg-logo{width:28px;height:auto;flex:none}
+.jg-txt{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;justify-content:center;min-width:0}
+.jg-k{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.jg-n{font-family:"Michroma","Outfit",sans-serif;font-size:11px;letter-spacing:.08em;color:var(--muted);text-decoration:none;margin:0;transition:color .2s}
+.jg-n:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.jg-n:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 #album .grid{padding-bottom:28px}
 #album{min-height:calc(100% - 40px)}
-.in-album .jg-in{padding-bottom:calc(var(--safe-b) + 104px)}
-@media (max-width:520px){.jg-a{width:100%;text-align:center}}
+.in-album .jg-in{padding-bottom:calc(var(--safe-b) + 96px)}
+/* ══ Intro: logo JG + disparo de cámara ══ */
+body.wait main *{animation-play-state:paused!important}
+.intro{position:fixed;inset:0;z-index:200;background:#05080f;display:grid;place-items:center;overflow:hidden;cursor:pointer;color-scheme:dark}
+.intro.out{animation:fade .3s ease reverse both}
+.intro::before{content:"";position:absolute;inset:0;background:radial-gradient(55% 40% at 50% 50%, rgba(53,230,242,.14), rgba(160,123,255,.08) 45%, transparent 70%);opacity:0}
+.intro.go::before{animation:halo 1.6s ease .3s forwards}
+@keyframes halo{to{opacity:1}}
+.intro-stage{position:relative;width:min(64vw,320px);aspect-ratio:438/314}
+.intro-logo{width:100%;height:auto;display:block;opacity:0}
+.intro.go .intro-logo{animation:logoIn 1.4s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes logoIn{
+  0%{opacity:0;transform:scale(.82);filter:blur(16px) brightness(.3)}
+  30%{opacity:.9;filter:blur(4px) brightness(.8)}
+  38%{opacity:.3}
+  44%{opacity:1;filter:blur(0) brightness(1.6) drop-shadow(0 0 34px #35e6f2)}
+  52%{opacity:.6}
+  60%{opacity:1}
+  100%{opacity:1;transform:scale(1);filter:blur(0) brightness(1) drop-shadow(0 0 16px rgba(53,230,242,.55)) drop-shadow(0 0 38px rgba(160,123,255,.4))}}
+.vf{position:absolute;width:28px;height:28px;border:0 solid rgba(232,243,255,.9);opacity:0}
+.vf.tl{left:-14%;top:-18%;border-top-width:2px;border-left-width:2px}
+.vf.tr{right:-14%;top:-18%;border-top-width:2px;border-right-width:2px}
+.vf.bl{left:-14%;bottom:-18%;border-bottom-width:2px;border-left-width:2px}
+.vf.br{right:-14%;bottom:-18%;border-bottom-width:2px;border-right-width:2px}
+.intro.go .vf{animation:lock .45s cubic-bezier(.3,1.6,.5,1) 1.35s forwards}
+@keyframes lock{0%{opacity:0;transform:scale(1.6)}100%{opacity:1;transform:scale(1)}}
+.rec{position:absolute;left:-14%;top:calc(-18% - 26px);font:600 11px/1 "JetBrains Mono",ui-monospace,monospace;letter-spacing:.2em;color:#e8f3ff;opacity:0;display:flex;align-items:center;gap:6px}
+.rec::before{content:"";width:8px;height:8px;border-radius:50%;background:#ff3b5c;box-shadow:0 0 8px #ff3b5c}
+.intro.go .rec{animation:fade .2s ease 1.55s forwards, blink 1s steps(2) 1.75s infinite}
+@keyframes blink{50%{opacity:.35}}
+.shut{position:absolute;left:0;right:0;height:51%;background:#000;z-index:2}
+.shut.top{top:0;transform:translateY(-101%)}
+.shut.bot{bottom:0;transform:translateY(101%)}
+.intro.go .shut.top{animation:shutT .62s cubic-bezier(.7,0,.3,1) 2.15s forwards}
+.intro.go .shut.bot{animation:shutB .62s cubic-bezier(.7,0,.3,1) 2.15s forwards}
+@keyframes shutT{0%{transform:translateY(-101%)}28%,45%{transform:translateY(0)}100%{transform:translateY(-101%)}}
+@keyframes shutB{0%{transform:translateY(101%)}28%,45%{transform:translateY(0)}100%{transform:translateY(101%)}}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:3;pointer-events:none}
+.intro.go .flash{animation:flash .6s ease-out 2.38s forwards}
+@keyframes flash{0%{opacity:0}12%{opacity:.95}100%{opacity:0}}
+/* al cerrarse el obturador, el fondo negro desaparece y queda la página detrás */
+.intro.go{animation:clear 0s linear 2.36s forwards}
+@keyframes clear{to{background:transparent}}
+.intro.go .intro-stage{animation:gone 0s linear 2.36s forwards}
+.intro.go::before{animation:halo 1.6s ease .3s forwards, gone 0s linear 2.36s forwards}
+@keyframes gone{to{visibility:hidden;opacity:0}}
+.intro-hint{position:absolute;bottom:calc(var(--safe-b) + 22px);left:0;right:0;text-align:center;font:400 11px/1 "JetBrains Mono",ui-monospace,monospace;letter-spacing:.24em;text-transform:uppercase;color:rgba(142,163,194,.7)}
+.intro.go .intro-hint{animation:gone 0s linear 2.36s forwards}
 
-@media (prefers-reduced-motion:reduce){*,.l-logo,.landing .crest h1.l-brand{transition:none!important;animation:none!important}.fx .spark{display:none}.tile img{opacity:1}}
+@media (prefers-reduced-motion:reduce){*,.l-logo,.landing .crest h1.l-brand{transition:none!important;animation:none!important}.fx .spark{display:none}.tile img{opacity:1}.intro{display:none}}
 </style>
 </head>
-<body>
+<body class="wait">
+
+<!-- Intro: logo JG y disparo de cámara -->
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-stage">
+    <img class="intro-logo" src="https://jgg-ia.github.io/portafolio/logo.png" alt="">
+    <span class="vf tl"></span><span class="vf tr"></span><span class="vf bl"></span><span class="vf br"></span>
+    <span class="rec">REC</span>
+  </div>
+  <div class="intro-hint">Toca para continuar</div>
+  <div class="shut top"></div><div class="shut bot"></div>
+  <div class="flash"></div>
+</div>
+<script>setTimeout(function(){document.body.classList.remove("wait");var i=document.getElementById("intro");if(i)i.remove();},6000);</script>
 
 <!-- Portada sin evento -->
 <main class="welcome landing" id="landing" hidden>
@@ -361,7 +411,6 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
     <div class="jg-txt">
       <span class="jg-k">Desarrollado por</span>
       <a class="jg-n" href="https://jgg-ia.github.io/portafolio/" target="_blank" rel="noopener">JULIÁN GARCÍA</a>
-      <span class="jg-s">Multimedia producer · Technology · Artificial intelligence</span>
     </div>
   </div>
 </footer>

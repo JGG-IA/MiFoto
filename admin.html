@@ -119,22 +119,16 @@ label{font-weight:600;font-size:14px}
 @keyframes enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .sheet{animation:enter .35s cubic-bezier(.2,.8,.2,1) both}
 
-/* Firma JG (estilo del portafolio) */
-.jg{--night:#05080f;--cyan:#35e6f2;--violet:#a07bff;position:relative;background:radial-gradient(90% 140% at 50% 0%, rgba(53,230,242,.10), transparent 60%), var(--night);color:#e8f3ff;border-top:1px solid rgba(120,200,255,.16);overflow:hidden;color-scheme:dark}
-.jg::before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);animation:scan 4s linear infinite}
-@keyframes scan{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-.jg-in{max-width:960px;margin:0 auto;padding:26px var(--gut-r) calc(var(--safe-b) + 26px) var(--gut-l);display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.jg-logo{width:84px;height:auto;flex:none;filter:drop-shadow(0 0 14px rgba(53,230,242,.45)) drop-shadow(0 0 22px rgba(160,123,255,.35));animation:hover 5s ease-in-out infinite}
-@keyframes hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.jg-txt{flex:1;min-width:0;display:grid;gap:4px}
-.jg-k{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:10px}
-.jg-n{display:inline-block;justify-self:start;text-decoration:none;transition:filter .2s, transform .2s}.jg-n:hover{filter:drop-shadow(0 0 10px rgba(53,230,242,.7));transform:translateX(3px)}.jg-n:focus-visible{outline:2px solid #35e6f2;outline-offset:4px}.jg-k::before{content:"";width:22px;height:1px;background:var(--cyan)}
-.jg-n{font-family:"Michroma","Eurostile","Arial Black",sans-serif;font-size:clamp(18px,4.6vw,24px);letter-spacing:.06em;margin:0;line-height:1.2;background:linear-gradient(180deg,#fff 0%,#cfe6ff 55%,#7d93b8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.jg-s{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;color:#8ea3c2;text-transform:uppercase}
-.jg-a{font-weight:600;font-size:14px;color:#05080f;text-decoration:none;border-radius:999px;padding:11px 18px;flex:none;background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 18px rgba(53,230,242,.35);transition:transform .2s, box-shadow .2s}
-.jg-a:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(160,123,255,.55)}
-@media (max-width:520px){.jg-a{width:100%;text-align:center}}
-
+/* ══ Firma (discreta) ══ */
+.jg{position:relative;z-index:1;border-top:1px solid var(--line);background:var(--bg)}
+.jg-in{max-width:960px;margin:0 auto;padding:14px var(--gut-r) calc(var(--safe-b) + 14px) var(--gut-l);display:flex;align-items:center;justify-content:center;gap:8px;opacity:.7;transition:opacity .2s}
+.jg-in:hover,.jg-in:focus-within{opacity:1}
+.jg-logo{width:28px;height:auto;flex:none}
+.jg-txt{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;justify-content:center;min-width:0}
+.jg-k{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.jg-n{font-family:"Michroma","Outfit",sans-serif;font-size:11px;letter-spacing:.08em;color:var(--muted);text-decoration:none;margin:0;transition:color .2s}
+.jg-n:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.jg-n:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -179,7 +173,6 @@ label{font-weight:600;font-size:14px}
     <div class="jg-txt">
       <span class="jg-k">Desarrollado por</span>
       <a class="jg-n" href="https://jgg-ia.github.io/portafolio/" target="_blank" rel="noopener">JULIÁN GARCÍA</a>
-      <span class="jg-s">Multimedia producer · Technology · Artificial intelligence</span>
     </div>
   </div>
 </footer>
