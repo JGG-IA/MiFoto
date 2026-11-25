@@ -6,10 +6,14 @@
 <meta name="theme-color" content="#FBF3F5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#170C12" media="(prefers-color-scheme: dark)">
 <meta name="robots" content="noindex, nofollow">
-<title>Álbum del evento</title>
+<title>MiFoto</title>
+<meta name="description" content="MiFoto: el álbum compartido de tu evento. Escanea, escribe tu nombre y sube tus fotos.">
+<meta property="og:title" content="MiFoto · Álbum compartido del evento">
+<meta property="og:description" content="Escanea, escribe tu nombre y sube tus fotos. Todos ven el álbum en vivo.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Outfit:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Outfit:wght@300;400;500;600;700&family=Michroma&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 /* Layout: una sola columna pensada para el celular; grilla de fotos a sangre, barra fija arriba y botón flotante abajo. */
 :root{
@@ -168,16 +172,116 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
 .minibtn.danger{background:#D2344A;border-color:#D2344A;color:#fff}
 .p-empty{color:var(--muted);font-size:14px;padding:14px;text-align:center}
 
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ══ Movimiento ══ */
+.welcome{position:relative;overflow:hidden;isolation:isolate}
+.welcome > *:not(.fx){position:relative;z-index:1}
+.fx{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.fx .blob{position:absolute;border-radius:50%;filter:blur(48px);opacity:.3;will-change:transform;animation:float 16s ease-in-out infinite}
+.fx .b1{width:62vmax;height:62vmax;left:-24vmax;top:-26vmax;background:var(--berry)}
+.fx .b2{width:46vmax;height:46vmax;right:-22vmax;top:12%;background:var(--gold);opacity:.28;animation-duration:21s;animation-delay:-6s}
+.fx .b3{width:40vmax;height:40vmax;left:8%;bottom:-24vmax;background:color-mix(in srgb, var(--berry) 50%, #7B3FE4);opacity:.26;animation-duration:24s;animation-delay:-11s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(6vmax,4vmax) scale(1.08)}66%{transform:translate(-4vmax,6vmax) scale(.94)}}
+.fx .spark{position:absolute;bottom:-10px;width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);opacity:0;animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}12%{opacity:.9}100%{transform:translateY(-105vh) scale(1.1);opacity:0}}
+
+.reveal > *{animation:enter .8s cubic-bezier(.2,.75,.2,1) both;animation-delay:calc(var(--i,0) * 110ms)}
+.reveal > :nth-child(2){--i:1}.reveal > :nth-child(3){--i:2}.reveal > :nth-child(4){--i:3}.reveal > :nth-child(5){--i:4}
+.welcome > .msg{animation:enter .8s cubic-bezier(.2,.75,.2,1) .55s both}
+.welcome > .card{animation:enter .9s cubic-bezier(.2,.75,.2,1) .7s both}
+.l-logo{width:72px;height:72px;border-radius:18px;box-shadow:0 12px 30px color-mix(in srgb, #7B3FE4 35%, transparent);animation:enter .8s both, bob 4s ease-in-out 1s infinite!important}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-4deg)}}
+.landing .crest h1.l-brand{font-family:"Michroma","Outfit",sans-serif;font-size:clamp(40px,12vw,64px);letter-spacing:.04em;margin:10px 0 0;
+  background:linear-gradient(90deg,#F0457E,#7B3FE4,#F0457E);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:enter .8s both, sheen 6s linear 1s infinite}
+@keyframes sheen{from{background-position:0 0}to{background-position:200% 0}}
+@keyframes enter{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.crest h1.ink{animation:ink 1.6s cubic-bezier(.6,.1,.2,1) .25s both}
+@keyframes ink{from{clip-path:inset(0 100% 0 0);opacity:.2}to{clip-path:inset(0 -10% 0 0);opacity:1}}
+.rule path:first-child{stroke-dasharray:120;animation:draw 1.4s ease .6s both}
+@keyframes draw{from{stroke-dashoffset:120}to{stroke-dashoffset:0}}
+.rule path:last-child{transform-origin:60px 7px;animation:spin 1.2s cubic-bezier(.3,1.6,.5,1) .9s both}
+@keyframes spin{from{transform:rotate(-180deg) scale(0)}to{transform:none}}
+
+.btn{transition:transform .18s ease, box-shadow .2s ease, filter .2s}
+.btn:active{transform:scale(.96)}
+.btn-primary:hover{filter:brightness(1.08);box-shadow:0 8px 22px color-mix(in srgb, var(--berry) 40%, transparent)}
+.iconbtn,.me{transition:transform .2s ease, border-color .2s}
+.iconbtn:hover,.me:hover{transform:translateY(-2px);border-color:var(--berry)}
+
+.tile img{opacity:0;transition:opacity .5s ease, transform .3s}
+.tile img.ok{opacity:1}
+.tile.enter{animation:pop .55s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--d,0) * 45ms)}
+@keyframes pop{from{opacity:0;transform:scale(.82) translateY(14px)}to{opacity:1;transform:none}}
+.tile.fresh::after{content:"";position:absolute;inset:0;border:3px solid var(--berry);animation:glow 2.4s ease-out both;pointer-events:none}
+@keyframes glow{0%{opacity:1;box-shadow:inset 0 0 30px var(--berry)}100%{opacity:0;box-shadow:inset 0 0 0 transparent}}
+.tile.pending{background:linear-gradient(100deg, var(--line) 30%, color-mix(in srgb, var(--berry) 22%, var(--line)) 50%, var(--line) 70%);background-size:300% 100%;animation:shimmer 1.4s linear infinite}
+.tile.pending img{opacity:.55}
+@keyframes shimmer{from{background-position:100% 0}to{background-position:-100% 0}}
+
+.fab.hint::before{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 0 color-mix(in srgb, var(--berry) 55%, transparent);animation:ring 2.2s ease-out infinite}
+@keyframes ring{0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--berry) 55%, transparent)}100%{box-shadow:0 0 0 22px transparent}}
+.fab:hover{transform:translateX(-50%) translateY(-3px)}
+.fab:active{transform:translateX(-50%) scale(.96)}
+.fab svg{transition:transform .4s}
+.fab:hover svg{transform:rotate(-12deg) scale(1.1)}
+
+.toast{animation:toastIn .35s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,16px) scale(.95)}to{opacity:1;transform:translate(-50%,0)}}
+.sheet{animation:sheetUp .38s cubic-bezier(.2,.8,.2,1) both}
+@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.viewer{animation:fade .25s ease both}
+.panel{animation:fade .25s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.v-stage img.go-next{animation:slideL .35s cubic-bezier(.2,.8,.2,1) both}
+.v-stage img.go-prev{animation:slideR .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slideL{from{opacity:0;transform:translateX(40px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(-40px) scale(.98)}to{opacity:1;transform:none}}
+.vbtn{transition:transform .2s, background .2s}
+.vbtn:active{transform:scale(.92)}
+.vbtn.liked svg{animation:beat .45s cubic-bezier(.3,1.8,.5,1)}
+@keyframes beat{0%{transform:scale(.6)}100%{transform:scale(1)}}
+.burst{position:absolute;left:50%;top:50%;width:120px;height:120px;margin:-60px 0 0 -60px;color:#F0659F;pointer-events:none;filter:drop-shadow(0 6px 20px rgba(240,101,159,.6));animation:burst .9s cubic-bezier(.2,.9,.3,1) both}
+@keyframes burst{0%{transform:scale(0);opacity:0}25%{transform:scale(1.15);opacity:1}60%{transform:scale(.95);opacity:1}100%{transform:scale(1.4) translateY(-30px);opacity:0}}
+.stats b{display:inline-block}
+.stats b.bump{animation:bump .5s cubic-bezier(.3,1.8,.5,1)}
+@keyframes bump{0%{transform:scale(1.5);color:var(--berry)}100%{transform:scale(1)}}
+#confetti{position:fixed;inset:0;z-index:90;pointer-events:none}
+
+/* ══ Firma JG (estilo del portafolio) ══ */
+.jg{--night:#05080f;--line-jg:rgba(120,200,255,.16);--ink-jg:#e8f3ff;--mute-jg:#8ea3c2;--cyan:#35e6f2;--violet:#a07bff;--magenta:#d36cff;
+  position:relative;z-index:1;background:radial-gradient(90% 140% at 50% 0%, rgba(53,230,242,.10), transparent 60%), var(--night);color:var(--ink-jg);
+  border-top:1px solid var(--line-jg);overflow:hidden;color-scheme:dark}
+.jg::before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);animation:scan 4s linear infinite}
+@keyframes scan{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.jg-in{max-width:960px;margin:0 auto;padding:26px var(--gut-r) calc(var(--safe-b) + 26px) var(--gut-l);display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.jg-logo{width:84px;height:auto;flex:none;filter:drop-shadow(0 0 14px rgba(53,230,242,.45)) drop-shadow(0 0 22px rgba(160,123,255,.35));animation:hover 5s ease-in-out infinite}
+@keyframes hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.jg-txt{flex:1;min-width:0;display:grid;gap:4px}
+.jg-k{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:10px}
+.jg-k::before{content:"";width:22px;height:1px;background:var(--cyan)}
+.jg-n{font-family:"Michroma","Eurostile","Arial Black",sans-serif;font-size:clamp(18px,4.6vw,24px);letter-spacing:.06em;margin:0;line-height:1.2;
+  background:linear-gradient(180deg,#fff 0%,#cfe6ff 55%,#7d93b8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.jg-s{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;color:var(--mute-jg);text-transform:uppercase}
+.jg-a{font-family:"Outfit",system-ui,sans-serif;font-weight:600;font-size:14px;color:#05080f;text-decoration:none;border-radius:999px;padding:11px 18px;flex:none;
+  background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 18px rgba(53,230,242,.35);transition:transform .2s, box-shadow .2s}
+.jg-a:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(160,123,255,.55)}
+.jg-a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+#album .grid{padding-bottom:28px}
+#album{min-height:calc(100% - 40px)}
+.in-album .jg-in{padding-bottom:calc(var(--safe-b) + 104px)}
+@media (max-width:520px){.jg-a{width:100%;text-align:center}}
+
+@media (prefers-reduced-motion:reduce){*,.l-logo,.landing .crest h1.l-brand{transition:none!important;animation:none!important}.fx .spark{display:none}.tile img{opacity:1}}
 </style>
 </head>
 <body>
 
 <!-- Portada sin evento -->
 <main class="welcome landing" id="landing" hidden>
-  <div class="crest">
-    <div class="xv" id="l-brand"></div>
-    <h1>Álbum compartido del evento</h1>
+  <div class="fx" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+  <div class="crest reveal">
+    <img class="l-logo" src="favicon.svg" alt="" width="72" height="72">
+    <h1 class="l-brand" id="l-brand">MiFoto</h1>
+    <div class="sub">Álbum compartido del evento</div>
   </div>
   <p class="msg" id="l-msg"></p>
   <form class="card" id="landing-form">
@@ -191,9 +295,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
 
 <!-- Bienvenida / registro -->
 <main class="welcome" id="welcome" hidden>
-  <div class="crest">
-    <div class="xv" id="w-tipo"></div>
-    <h1 id="w-name"></h1>
+  <div class="fx" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+  <div class="crest reveal">
+    <div class="xv" id="w-tipo" style="--i:0"></div>
+    <h1 id="w-name" class="ink" style="--i:1"></h1>
     <svg class="rule" viewBox="0 0 120 14" aria-hidden="true"><path d="M0 7h46M74 7h46" stroke="currentColor" stroke-width="1"/><path d="M60 1l6 6-6 6-6-6z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
     <div class="sub" id="w-title"></div>
     <div class="meta" id="w-meta"></div>
@@ -247,6 +352,21 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
     Subir fotos
   </button>
 </div>
+
+<!-- Firma -->
+<footer class="jg" id="jg">
+  <div class="jg-in">
+    <img class="jg-logo" src="https://jgg-ia.github.io/portafolio/logo.png" alt="Logo JG" width="84" height="60" loading="lazy">
+    <div class="jg-txt">
+      <span class="jg-k">Desarrollado por</span>
+      <p class="jg-n">JULIÁN GARCÍA</p>
+      <span class="jg-s">Multimedia producer · Technology · Artificial intelligence</span>
+    </div>
+    <a class="jg-a" href="https://jgg-ia.github.io/portafolio/" target="_blank" rel="noopener">Ver portafolio →</a>
+  </div>
+</footer>
+
+<canvas id="confetti" hidden></canvas>
 
 <!-- Visor de fotos -->
 <div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Foto">

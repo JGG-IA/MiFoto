@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>Consola de eventos</title>
+<title>MiFoto · Consola</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Outfit:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Outfit:wght@300;400;500;600;700&family=Michroma&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 /* Layout: consola de trabajo; lista de eventos en tarjetas y un formulario a pantalla completa para crear o editar. */
 :root{
@@ -111,14 +112,37 @@ label{font-weight:600;font-size:14px}
 .kv b.big{font-size:22px;letter-spacing:.12em}
 .warn{background:color-mix(in srgb, var(--gold) 16%, transparent);border-radius:12px;padding:10px 12px;font-size:14px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--safe-b) + 24px);z-index:80;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:500;box-shadow:var(--shadow);max-width:calc(100vw - 32px);text-align:center}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.top h1{display:flex;align-items:center;gap:10px}
+.top h1 img{width:34px;height:34px;border-radius:9px;flex:none}
+.ev{animation:enter .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--d,0) * 60ms);transition:transform .2s, box-shadow .2s}
+.ev:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+@keyframes enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.sheet{animation:enter .35s cubic-bezier(.2,.8,.2,1) both}
+
+/* Firma JG (estilo del portafolio) */
+.jg{--night:#05080f;--cyan:#35e6f2;--violet:#a07bff;position:relative;background:radial-gradient(90% 140% at 50% 0%, rgba(53,230,242,.10), transparent 60%), var(--night);color:#e8f3ff;border-top:1px solid rgba(120,200,255,.16);overflow:hidden;color-scheme:dark}
+.jg::before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);animation:scan 4s linear infinite}
+@keyframes scan{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.jg-in{max-width:960px;margin:0 auto;padding:26px var(--gut-r) calc(var(--safe-b) + 26px) var(--gut-l);display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.jg-logo{width:84px;height:auto;flex:none;filter:drop-shadow(0 0 14px rgba(53,230,242,.45)) drop-shadow(0 0 22px rgba(160,123,255,.35));animation:hover 5s ease-in-out infinite}
+@keyframes hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.jg-txt{flex:1;min-width:0;display:grid;gap:4px}
+.jg-k{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:10px}
+.jg-k::before{content:"";width:22px;height:1px;background:var(--cyan)}
+.jg-n{font-family:"Michroma","Eurostile","Arial Black",sans-serif;font-size:clamp(18px,4.6vw,24px);letter-spacing:.06em;margin:0;line-height:1.2;background:linear-gradient(180deg,#fff 0%,#cfe6ff 55%,#7d93b8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.jg-s{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;color:#8ea3c2;text-transform:uppercase}
+.jg-a{font-weight:600;font-size:14px;color:#05080f;text-decoration:none;border-radius:999px;padding:11px 18px;flex:none;background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 18px rgba(53,230,242,.35);transition:transform .2s, box-shadow .2s}
+.jg-a:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(160,123,255,.55)}
+@media (max-width:520px){.jg-a{width:100%;text-align:center}}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 
 <header class="top">
   <div class="top-in">
-    <h1><small id="brand"></small>Consola de eventos</h1>
+    <h1><img src="favicon.svg" alt=""><span><small id="brand"></small>Consola de eventos</span></h1>
     <button class="btn btn-primary btn-sm" id="new-btn" hidden>＋ Nuevo evento</button>
   </div>
 </header>
@@ -148,6 +172,18 @@ label{font-weight:600;font-size:14px}
     <div class="empty" id="no-events" hidden><b>Todavía no hay eventos</b>Toca “Nuevo evento” para crear el primer álbum.</div>
   </section>
 </main>
+
+<footer class="jg">
+  <div class="jg-in">
+    <img class="jg-logo" src="https://jgg-ia.github.io/portafolio/logo.png" alt="Logo JG" width="84" height="60" loading="lazy">
+    <div class="jg-txt">
+      <span class="jg-k">Desarrollado por</span>
+      <p class="jg-n">JULIÁN GARCÍA</p>
+      <span class="jg-s">Multimedia producer · Technology · Artificial intelligence</span>
+    </div>
+    <a class="jg-a" href="https://jgg-ia.github.io/portafolio/" target="_blank" rel="noopener">Ver portafolio →</a>
+  </div>
+</footer>
 
 <!-- Formulario de evento -->
 <div class="full" id="editor" hidden role="dialog" aria-modal="true" aria-labelledby="ed-h">

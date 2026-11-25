@@ -86,6 +86,7 @@ function renderEvents() {
   for (const e of events) {
     const s = stats.get(e.id) || { fotos: 0, invitados: 0, codigo: null };
     const card = document.createElement("article"); card.className = "ev";
+    card.style.setProperty("--d", box.children.length);
     const head = document.createElement("div"); head.className = "ev-head";
     const dot = document.createElement("span"); dot.className = "dot"; dot.style.background = e.color;
     const t = document.createElement("div"); t.className = "ev-t";

@@ -25,7 +25,55 @@ let backend;
 function toast(msg, ms = 2600) {
   const t = $("toast");
   t.textContent = msg; t.hidden = false;
+  t.style.animation = "none"; void t.offsetWidth; t.style.animation = "";
   clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), ms);
+}
+
+/* ── efectos ── */
+const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function addSparks() {
+  if (calm) return;
+  document.querySelectorAll(".fx").forEach((fx) => {
+    if (fx.querySelector(".spark")) return;
+    for (let i = 0; i < 16; i++) {
+      const s = document.createElement("span"); s.className = "spark";
+      const size = 3 + Math.random() * 5;
+      s.style.cssText = `left:${Math.random() * 100}%;width:${size}px;height:${size}px;animation-duration:${7 + Math.random() * 9}s;animation-delay:${-Math.random() * 12}s`;
+      if (i % 3 === 0) { s.style.background = "var(--berry)"; s.style.boxShadow = "0 0 10px var(--berry)"; }
+      fx.append(s);
+    }
+  });
+}
+function confetti() {
+  if (calm) return;
+  const c = $("confetti"); c.hidden = false;
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  c.width = innerWidth * dpr; c.height = innerHeight * dpr;
+  const g = c.getContext("2d"); g.scale(dpr, dpr);
+  const css = getComputedStyle(document.documentElement);
+  const cols = [css.getPropertyValue("--berry").trim() || "#A3195B", "#D9AE62", "#F0659F", "#7B3FE4", "#35e6f2"];
+  const parts = Array.from({ length: 140 }, () => ({
+    x: innerWidth / 2 + (Math.random() - 0.5) * 80, y: innerHeight - 90,
+    vx: (Math.random() - 0.5) * 11, vy: -8 - Math.random() * 11, r: 3 + Math.random() * 5,
+    a: Math.random() * 6, va: (Math.random() - 0.5) * 0.4, col: cols[Math.floor(Math.random() * cols.length)],
+  }));
+  const t0 = performance.now();
+  (function frame(t) {
+    const k = (t - t0) / 1800;
+    g.clearRect(0, 0, innerWidth, innerHeight);
+    for (const p of parts) {
+      p.vy += 0.32; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.a += p.va;
+      g.save(); g.translate(p.x, p.y); g.rotate(p.a); g.globalAlpha = Math.max(0, 1 - k);
+      g.fillStyle = p.col; g.fillRect(-p.r, -p.r / 2, p.r * 2, p.r); g.restore();
+    }
+    if (k < 1) requestAnimationFrame(frame); else c.hidden = true;
+  })(t0);
+}
+function heartBurst() {
+  if (calm) return;
+  const b = document.createElement("div"); b.className = "burst";
+  b.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="120" height="120"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.4h2c.7-1.2 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg>';
+  $("v-stage").append(b); setTimeout(() => b.remove(), 950);
 }
 function colorFor(id) {
   let h = 0; for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
@@ -293,11 +341,13 @@ const visible = () => state.filter === "mine" ? state.photos.filter((p) => p.use
 
 function showScreen(name) {
   for (const id of ["landing", "welcome", "album"]) $(id).hidden = id !== name;
+  document.body.classList.toggle("in-album", name === "album");
+  if (name !== "album") addSparks();
 }
 
 function fillEventText() {
   const e = state.event;
-  document.title = `${e.nombre} · ${e.titulo || e.tipo}`;
+  document.title = `${e.nombre} · ${e.titulo || e.tipo} | ${MARCA.nombre}`;
   applyTheme(e.color);
   $("w-tipo").textContent = e.tipo || "";
   $("w-name").textContent = e.nombre;
@@ -330,33 +380,72 @@ function renderClosed() {
   $("upload-btn").hidden = closed && !state.admin;
 }
 
+const tiles = new Map();   // photoId -> elemento (se reutiliza para no repetir animaciones)
+const seen = new Set();   // fotos ya mostradas
+let firstPaint = true, lastStats = [null, null];
+
+function setStat(el, v, prev) {
+  el.textContent = v;
+  if (prev !== null && prev !== v && !calm) { el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+}
+
 function render() {
   const list = visible();
   const guests = new Set(state.photos.map((p) => p.userId)).size;
   const n = state.photos.length;
-  const b1 = document.createElement("b"); b1.textContent = n;
-  const b2 = document.createElement("b"); b2.textContent = guests;
+  const b1 = document.createElement("b"), b2 = document.createElement("b");
   $("stats").replaceChildren(b1, n === 1 ? " foto · " : " fotos · ", b2, guests === 1 ? " invitado" : " invitados");
+  setStat(b1, n, lastStats[0]); setStat(b2, guests, lastStats[1]);
+  lastStats = [n, guests];
 
   const frag = document.createDocumentFragment();
   for (const u of state.pending) {
     const t = document.createElement("div"); t.className = "tile pending"; t.style.setProperty("--p", u.p);
-    const img = document.createElement("img"); img.src = u.thumb; img.alt = "Subiendo…"; t.append(img);
+    const img = document.createElement("img"); img.src = u.thumb; img.alt = "Subiendo…"; img.className = "ok"; t.append(img);
     frag.append(t);
   }
+  let entering = 0;
+  const freshOthers = [];
   list.forEach((p, i) => {
-    const t = document.createElement("button"); t.className = "tile";
-    t.setAttribute("aria-label", `Foto de ${p.name}`);
-    const img = document.createElement("img"); img.src = p.thumb; img.alt = ""; img.loading = "lazy"; img.decoding = "async";
-    img.onerror = () => { img.style.visibility = "hidden"; };
-    const who = document.createElement("span"); who.className = "who"; who.textContent = p.name;
-    t.append(img, who);
+    let t = tiles.get(p.id);
+    if (!t) {
+      t = document.createElement("button"); t.className = "tile";
+      t.setAttribute("aria-label", `Foto de ${p.name}`);
+      const img = document.createElement("img"); img.alt = ""; img.loading = "lazy"; img.decoding = "async";
+      img.onload = () => img.classList.add("ok");
+      img.onerror = () => { img.style.visibility = "hidden"; };
+      img.src = p.thumb;
+      const who = document.createElement("span"); who.className = "who";
+      t.append(img, who);
+      if (!calm) {
+        t.style.setProperty("--d", Math.min(entering++, 14));
+        t.classList.add("enter");
+        t.addEventListener("animationend", () => t.classList.remove("enter"), { once: true });
+      }
+      if (!firstPaint && !seen.has(p.id)) {
+        t.classList.add("fresh");
+        setTimeout(() => t.classList.remove("fresh"), 2500);
+        if (p.userId !== state.me.id) freshOthers.push(p.name);
+      }
+      tiles.set(p.id, t);
+    }
+    seen.add(p.id);
+    t.querySelector(".who").textContent = p.name;
+    const img = t.querySelector("img");
+    if (img.dataset.src !== p.thumb && p.thumb) { img.dataset.src = p.thumb; if (img.src !== p.thumb) img.src = p.thumb; }
     const c = state.likes.get(p.id)?.size || 0;
-    if (c) { const h = document.createElement("span"); h.className = "hearts"; h.textContent = "♥ " + c; t.append(h); }
+    let h = t.querySelector(".hearts");
+    if (c) { if (!h) { h = document.createElement("span"); h.className = "hearts"; t.append(h); } h.textContent = "♥ " + c; }
+    else if (h) h.remove();
     t.onclick = () => openViewer(i);
     frag.append(t);
   });
   $("grid").replaceChildren(frag);
+  for (const id of [...tiles.keys()]) if (!state.photos.some((p) => p.id === id)) tiles.delete(id);
+  if (state.photos.length) firstPaint = false;
+  if (freshOthers.length === 1) toast(`Nueva foto de ${freshOthers[0]}`);
+  else if (freshOthers.length > 1) toast(`${freshOthers.length} fotos nuevas en el álbum`);
+  $("upload-btn").classList.toggle("hint", !state.photos.some((p) => p.userId === state.me.id));
 
   const isEmpty = list.length === 0 && state.pending.length === 0;
   $("empty").hidden = !isEmpty;
@@ -402,6 +491,7 @@ async function handleFiles(files) {
     while (queue.length) await run(queue.shift());
   }));
   await refresh();
+  if (ok) confetti();
   if (fail) toast(`Se subieron ${ok} fotos. ${fail} no se pudieron subir; intenta de nuevo.`, 4000);
   else toast(ok === 1 ? "¡Tu foto ya está en el álbum!" : `¡Tus ${ok} fotos ya están en el álbum!`);
 }
@@ -435,13 +525,19 @@ function showCurrent() {
   $("v-del").hidden = !(p.userId === state.me.id || state.admin);
   const nx = list[state.current + 1]; if (nx) new Image().src = nx.url;
 }
-function step(d) { const n = visible().length; if (!n) return; state.current = (state.current + d + n) % n; resetDelete(); showCurrent(); }
+function step(d) {
+  const n = visible().length; if (!n) return;
+  state.current = (state.current + d + n) % n; resetDelete(); showCurrent();
+  const img = $("v-img"); img.classList.remove("go-next", "go-prev"); void img.offsetWidth;
+  img.classList.add(d > 0 ? "go-next" : "go-prev");
+}
 
 async function toggleLike() {
   const p = visible()[state.current]; if (!p) return;
   if (!state.likes.has(p.id)) state.likes.set(p.id, new Set());
   const set = state.likes.get(p.id); const on = !set.has(state.me.id);
   on ? set.add(state.me.id) : set.delete(state.me.id);
+  if (on) heartBurst();
   render();
   try { await backend.like(p.id, on); } catch (e) { console.error(e); toast("No se pudo guardar el me gusta."); scheduleRefresh(); }
 }
@@ -636,7 +732,7 @@ function closePanel() { $("panel").hidden = true; document.body.style.overflow =
 /* ───────────────────────── arranque ───────────────────────── */
 
 function showLanding(msg) {
-  document.title = `Álbum del evento · ${MARCA.nombre}`;
+  document.title = `${MARCA.nombre} · Álbum compartido del evento`;
   $("l-brand").textContent = MARCA.nombre;
   $("l-msg").textContent = msg;
   $("l-help").hidden = !MARCA.soporte;

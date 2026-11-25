@@ -1,4 +1,9 @@
-# Plataforma de álbumes compartidos para eventos
+# MiFoto — álbumes compartidos para eventos
+
+- Consola: https://jgg-ia.github.io/MiFoto/admin.html
+- Álbum de un evento: `https://jgg-ia.github.io/MiFoto/?e=nombre-del-evento`
+
+Desarrollado por **Julián García** · https://jgg-ia.github.io/portafolio/
 
 Cada evento (XV, boda, cumpleaños…) tiene su propio álbum: los invitados escanean un QR,
 escriben su nombre y suben fotos desde el celular. Todos ven el álbum común en vivo.

@@ -4,7 +4,7 @@
 //  consola: admin.html. Aquí solo va lo que es igual para todos.
 // ─────────────────────────────────────────────────────────────
 export const MARCA = {
-  nombre: "Productora LAM",   // aparece en la portada y en la consola
+  nombre: "MiFoto",           // nombre de la plataforma: portada, pestañas y consola
   soporte: "",                // opcional: teléfono o WhatsApp de ayuda que verán los invitados
 };
 
