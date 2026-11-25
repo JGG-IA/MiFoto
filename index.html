@@ -310,7 +310,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:var(--safe-t);backg
     <p class="hint">Tu nombre aparecerá junto a las fotos que subas.</p>
     <div id="code-row" class="card-row" hidden style="display:grid;gap:8px">
       <label for="code-input">Código del álbum</label>
-      <input id="code-input" autocomplete="off" autocapitalize="characters" maxlength="12" placeholder="Está en tu invitación o en la mesa" style="text-transform:uppercase;letter-spacing:.1em">
+      <input id="code-input" autocomplete="off" autocapitalize="characters" maxlength="12" placeholder="Ej: K7P4Q2" style="text-transform:uppercase;letter-spacing:.1em">
+      <p class="hint">Está en tu invitación o en la tarjeta de la mesa.</p>
     </div>
     <p class="err" id="join-err" hidden></p>
     <button class="btn btn-primary" id="join-btn" type="submit">Entrar al álbum</button>
