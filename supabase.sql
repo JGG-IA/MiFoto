@@ -228,14 +228,19 @@ create or replace function public.set_event_secrets(p_event uuid, p_codigo text,
 language plpgsql security definer set search_path = public, privado, extensions as $$
 begin
   if not public.is_platform_admin() then raise exception 'no_autorizado'; end if;
-  insert into privado.event_secrets (event_id, codigo_invitados, clave_organizador_hash)
-  values (p_event, nullif(upper(trim(coalesce(p_codigo, ''))), ''),
-          extensions.crypt(p_clave, extensions.gen_salt('bf')))
-  on conflict (event_id) do update set
-    codigo_invitados = case when p_codigo is null then privado.event_secrets.codigo_invitados
-                            else nullif(upper(trim(p_codigo)), '') end,
-    clave_organizador_hash = case when coalesce(p_clave, '') = '' then privado.event_secrets.clave_organizador_hash
-                                  else extensions.crypt(p_clave, extensions.gen_salt('bf')) end;
+  if exists (select 1 from privado.event_secrets where event_id = p_event) then
+    update privado.event_secrets set
+      codigo_invitados = case when p_codigo is null then codigo_invitados
+                              else nullif(upper(trim(p_codigo)), '') end,
+      clave_organizador_hash = case when coalesce(p_clave, '') = '' then clave_organizador_hash
+                                    else extensions.crypt(p_clave, extensions.gen_salt('bf')) end
+    where event_id = p_event;
+  else
+    if coalesce(p_clave, '') = '' then raise exception 'falta_clave'; end if;
+    insert into privado.event_secrets (event_id, codigo_invitados, clave_organizador_hash)
+    values (p_event, nullif(upper(trim(coalesce(p_codigo, ''))), ''),
+            extensions.crypt(p_clave, extensions.gen_salt('bf')));
+  end if;
 end $$;
 
 -- Consola: resumen de todos los eventos
@@ -277,3 +282,34 @@ create policy "archivos: borrar míos o como organizador" on storage.objects for
   using (bucket_id = 'fotos'
          and ((storage.foldername(name))[2] = auth.uid()::text
               or public.is_event_admin(((storage.foldername(name))[1])::uuid)));
+
+-- ── Encabezado y fuente del título por evento ──
+alter table public.events add column if not exists portada text;                          -- ruta en el almacenamiento "portadas"
+alter table public.events add column if not exists fuente text not null default 'Pinyon Script';
+
+drop function if exists public.event_info(text);
+create function public.event_info(p_slug text)
+returns table (id uuid, slug text, tipo text, nombre text, etiqueta text, titulo text, fecha date,
+               lugar text, mensaje text, color text, abierto boolean, requiere_codigo boolean,
+               portada text, fuente text)
+language sql stable security definer set search_path = public, privado as $$
+  select e.id, e.slug, e.tipo, e.nombre, e.etiqueta, e.titulo, e.fecha, e.lugar, e.mensaje, e.color, e.abierto,
+         coalesce(s.codigo_invitados, '') <> '', e.portada, e.fuente
+  from public.events e left join privado.event_secrets s on s.event_id = e.id
+  where e.slug = lower(trim(p_slug));
+$$;
+grant execute on function public.event_info(text) to anon, authenticated;
+
+-- Fotos de encabezado: públicas (se ven en la bienvenida, antes de entrar); solo la consola las sube o borra.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('portadas', 'portadas', true, 8388608, array['image/jpeg'])
+on conflict (id) do update set public = true;
+
+create policy "portadas: ver (consola)" on storage.objects for select to authenticated
+  using (bucket_id = 'portadas' and public.is_platform_admin());
+create policy "portadas: subir (consola)" on storage.objects for insert to authenticated
+  with check (bucket_id = 'portadas' and public.is_platform_admin());
+create policy "portadas: cambiar (consola)" on storage.objects for update to authenticated
+  using (bucket_id = 'portadas' and public.is_platform_admin());
+create policy "portadas: borrar (consola)" on storage.objects for delete to authenticated
+  using (bucket_id = 'portadas' and public.is_platform_admin());

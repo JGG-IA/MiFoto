@@ -1,9 +1,23 @@
-import { MARCA, SUPABASE_URL, SUPABASE_ANON_KEY, RUTAS_LIMPIAS } from "./config.js?v=7";
+import { MARCA, SUPABASE_URL, SUPABASE_ANON_KEY, RUTAS_LIMPIAS, FUENTES, cargarFuente } from "./config.js?v=8";
 
 const $ = (id) => document.getElementById(id);
 const COLORS = ["#A3195B", "#7A1F4E", "#C2185B", "#B8893B", "#1F6F78", "#2E4A8C", "#5B2A86", "#2F6B3A", "#8C3B2E", "#333333"];
 const SAFE = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // sin letras que se confunden (0/O, 1/I/L)
 let sb, events = [], stats = new Map(), editing = null, newKey = "";
+let coverBlob = null, coverRemoved = false, coverObjUrl = "";
+const coverUrl = (p) => (p ? `${SUPABASE_URL}/storage/v1/object/public/portadas/${p}` : "");
+
+/* Achica la foto de encabezado antes de subirla */
+async function resizeCover(file) {
+  let src;
+  try { src = await createImageBitmap(file, { imageOrientation: "from-image" }); }
+  catch { src = await new Promise((ok, fail) => { const i = new Image(); i.onload = () => ok(i); i.onerror = fail; i.src = URL.createObjectURL(file); }); }
+  const w0 = src.width || src.naturalWidth, h0 = src.height || src.naturalHeight;
+  const k = Math.min(1, 1600 / Math.max(w0, h0));
+  const c = document.createElement("canvas"); c.width = Math.round(w0 * k); c.height = Math.round(h0 * k);
+  c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
+  return await new Promise((ok) => c.toBlob(ok, "image/jpeg", 0.86));
+}
 
 /* ── utilidades ── */
 function toast(msg, ms = 2600) {
@@ -88,7 +102,9 @@ function renderEvents() {
     const card = document.createElement("article"); card.className = "ev";
     card.style.setProperty("--d", box.children.length);
     const head = document.createElement("div"); head.className = "ev-head";
-    const dot = document.createElement("span"); dot.className = "dot"; dot.style.background = e.color;
+    let dot;
+    if (e.portada) { dot = document.createElement("img"); dot.className = "ev-cover"; dot.src = coverUrl(e.portada); dot.alt = ""; }
+    else { dot = document.createElement("span"); dot.className = "dot"; dot.style.background = e.color; }
     const t = document.createElement("div"); t.className = "ev-t";
     const b = document.createElement("b"); b.textContent = e.nombre;
     const sp = document.createElement("span"); sp.textContent = `${e.tipo} · ${fmtDate(e.fecha)}${e.lugar ? " · " + e.lugar : ""}`;
@@ -144,6 +160,11 @@ function updatePreview() {
   $("pv").style.setProperty("--pv", $("f-color").value);
   $("pv-tipo").textContent = $("f-tipo").value;
   $("pv-nombre").textContent = $("f-nombre").value || "Nombre";
+  const fu = cargarFuente($("f-fuente").value);
+  $("pv-nombre").style.fontFamily = fu.css; $("pv-nombre").style.setProperty("--esc", fu.escala);
+  const curUrl = coverObjUrl || (!coverRemoved && editing?.portada ? coverUrl(editing.portada) : "");
+  for (const id of ["pv-cover", "cover-img"]) { $(id).hidden = !curUrl; if (curUrl) $(id).src = curUrl; }
+  $("cover-empty").hidden = !!curUrl; $("cover-remove").hidden = !curUrl;
   $("pv-titulo").textContent = $("f-titulo").value;
   const parts = [];
   if ($("f-fecha").value) parts.push(fmtDate($("f-fecha").value));
@@ -169,6 +190,8 @@ function openEditor(e, code) {
   $("f-fecha").value = e?.fecha || "";
   $("f-lugar").value = e?.lugar || "";
   $("f-mensaje").value = e?.mensaje || "";
+  $("f-fuente").value = e?.fuente || FUENTES[0].nombre;
+  coverBlob = null; coverRemoved = false; if (coverObjUrl) URL.revokeObjectURL(coverObjUrl); coverObjUrl = ""; $("f-portada").value = "";
   $("f-slug").value = e?.slug || "";
   $("f-usecode").checked = e ? !!code : true;
   $("f-codigo").value = code || genCode();
@@ -182,6 +205,17 @@ function openEditor(e, code) {
 }
 function closeEditor() { $("editor").hidden = true; document.body.style.overflow = ""; }
 
+$("f-fuente").replaceChildren(...FUENTES.map((f) => { const o = document.createElement("option"); o.value = f.nombre; o.textContent = `${f.nombre} — ${f.estilo}`; return o; }));
+$("f-fuente").addEventListener("change", updatePreview);
+$("f-portada").addEventListener("change", async (e) => {
+  const file = e.target.files?.[0]; if (!file) return;
+  try {
+    coverBlob = await resizeCover(file); coverRemoved = false;
+    if (coverObjUrl) URL.revokeObjectURL(coverObjUrl); coverObjUrl = URL.createObjectURL(coverBlob);
+    updatePreview();
+  } catch (err) { console.error(err); toast("No se pudo leer esa foto. Prueba con otra."); }
+});
+$("cover-remove").onclick = () => { coverBlob = null; coverRemoved = true; if (coverObjUrl) URL.revokeObjectURL(coverObjUrl); coverObjUrl = ""; $("f-portada").value = ""; updatePreview(); };
 $("new-btn").onclick = () => openEditor(null, "");
 $("ed-cancel").onclick = closeEditor;
 $("ed-cancel2").onclick = closeEditor;
@@ -197,7 +231,7 @@ $("ed-form").addEventListener("submit", async (ev) => {
   const row = {
     tipo: $("f-tipo").value, nombre: $("f-nombre").value.trim(), titulo: $("f-titulo").value.trim(),
     etiqueta: $("f-etiqueta").value.trim(), fecha: $("f-fecha").value || null, lugar: $("f-lugar").value.trim(),
-    mensaje: $("f-mensaje").value.trim(), color: $("f-color").value, slug: $("f-slug").value,
+    mensaje: $("f-mensaje").value.trim(), color: $("f-color").value, slug: $("f-slug").value, fuente: $("f-fuente").value,
   };
   const code = $("f-usecode").checked ? $("f-codigo").value.trim().toUpperCase() : "";
   if (!/^[a-z0-9][a-z0-9-]{2,40}$/.test(row.slug)) return showErr("El nombre del enlace debe tener al menos 3 letras o números, sin espacios ni tildes.");
@@ -215,6 +249,19 @@ $("ed-form").addEventListener("submit", async (ev) => {
     }
     const { error: e2 } = await sb.rpc("set_event_secrets", { p_event: id, p_codigo: code, p_clave: newKey || null });
     if (e2) throw e2;
+    // foto de encabezado
+    const old = editing?.portada || null;
+    if (coverBlob) {
+      const path = `${id}/${Date.now()}.jpg`;
+      const up = await sb.storage.from("portadas").upload(path, coverBlob, { contentType: "image/jpeg", cacheControl: "31536000" });
+      if (up.error) throw up.error;
+      const { error: e3 } = await sb.from("events").update({ portada: path }).eq("id", id);
+      if (e3) throw e3;
+      if (old) await sb.storage.from("portadas").remove([old]);
+    } else if (coverRemoved && old) {
+      await sb.from("events").update({ portada: null }).eq("id", id);
+      await sb.storage.from("portadas").remove([old]);
+    }
     closeEditor();
     await loadEvents();
     const saved = events.find((x) => x.id === id);
@@ -277,6 +324,7 @@ $("del-form").addEventListener("submit", async (ev) => {
       const r = await sb.storage.from("fotos").remove(paths.slice(i, i + 100));
       if (r.error) throw r.error;
     }
+    if (deleting.portada) await sb.storage.from("portadas").remove([deleting.portada]);
     const { error: e2 } = await sb.from("events").delete().eq("id", deleting.id);
     if (e2) throw e2;
     $("del").hidden = true; toast("Evento borrado"); loadEvents();

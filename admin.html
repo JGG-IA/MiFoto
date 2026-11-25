@@ -97,6 +97,14 @@ label{font-weight:600;font-size:14px}
 .preview .s{font-weight:500}
 .preview .m{font-size:13px;color:var(--muted)}
 .actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.pv-cover{width:120px;aspect-ratio:4/5;object-fit:cover;border-radius:999px 999px 14px 14px;border:3px solid var(--surface);box-shadow:var(--shadow);margin-bottom:8px}
+.preview .n{font-size:calc(56px * var(--esc,1));line-height:1.15;max-width:100%;overflow-wrap:anywhere}
+.coverpick{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.coverprev{width:96px;aspect-ratio:4/5;border-radius:14px;border:1.5px dashed var(--line);display:grid;place-items:center;overflow:hidden;background:var(--bg);flex:none}
+.coverprev img{width:100%;height:100%;object-fit:cover}
+.coverprev span{font-size:12px;color:var(--muted)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.ev-cover{width:44px;height:54px;border-radius:999px 999px 8px 8px;object-fit:cover;flex:none;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
 
 /* Datos para entregar */
 .sheet-bg{position:fixed;inset:0;z-index:60;background:rgba(20,8,14,.55);display:flex;align-items:flex-end;justify-content:center}
@@ -187,6 +195,7 @@ label{font-weight:600;font-size:14px}
   </header>
   <form class="wrap" id="ed-form">
     <div class="preview" id="pv">
+      <img class="pv-cover" id="pv-cover" alt="" hidden>
       <div class="t" id="pv-tipo"></div>
       <div class="n" id="pv-nombre"></div>
       <div class="s" id="pv-titulo"></div>
@@ -232,6 +241,22 @@ label{font-weight:600;font-size:14px}
       <div class="field">
         <label>Color del evento</label>
         <div class="colors" id="swatches"></div>
+      </div>
+      <div class="field">
+        <label for="f-fuente">Fuente del nombre</label>
+        <select id="f-fuente"></select>
+      </div>
+      <div class="field">
+        <label for="f-portada">Foto de encabezado</label>
+        <div class="coverpick">
+          <div class="coverprev"><img id="cover-img" alt="Vista previa de la foto de encabezado" hidden><span id="cover-empty">Sin foto</span></div>
+          <div style="display:grid;gap:8px;align-content:start;min-width:0">
+            <label class="btn btn-ghost btn-sm" for="f-portada" style="justify-self:start">Elegir foto</label>
+            <input type="file" id="f-portada" accept="image/*" class="sr-only">
+            <button type="button" class="btn btn-ghost btn-sm" id="cover-remove" style="justify-self:start" hidden>Quitar foto</button>
+            <p class="hint">Aparece arriba del nombre en la bienvenida y como portada del álbum. Queda mejor vertical o cuadrada.</p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -297,6 +322,6 @@ label{font-weight:600;font-size:14px}
 <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-<script type="module" src="./consola.js?v=7"></script>
+<script type="module" src="./consola.js?v=8"></script>
 </body>
 </html>

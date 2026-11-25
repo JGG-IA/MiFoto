@@ -1,4 +1,4 @@
-import { MARCA, SUPABASE_URL, SUPABASE_ANON_KEY, RUTAS_LIMPIAS, EVENTO_DEMO } from "./config.js?v=7";
+import { MARCA, SUPABASE_URL, SUPABASE_ANON_KEY, RUTAS_LIMPIAS, EVENTO_DEMO, cargarFuente } from "./config.js?v=8";
 
 const $ = (id) => document.getElementById(id);
 const FULL_MAX = 2048;   // lado mayor de la foto guardada (px)
@@ -350,6 +350,14 @@ function fillEventText() {
   const e = state.event;
   document.title = `${e.nombre} · ${e.titulo || e.tipo} | ${MARCA.nombre}`;
   applyTheme(e.color);
+  const fu = cargarFuente(e.fuente);
+  document.documentElement.style.setProperty("--f-title", fu.css);
+  document.documentElement.style.setProperty("--ts", fu.escala);
+  const cover = e.portada && SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/portadas/${e.portada}` : "";
+  $("w-cover").hidden = !cover; $("a-banner").hidden = !cover;
+  if (cover) { $("w-cover").src = cover; $("a-banner-img").src = cover; }
+  $("a-banner-name").textContent = e.nombre;
+  $("a-banner-tipo").textContent = e.titulo || e.tipo || "";
   $("w-tipo").textContent = e.tipo || "";
   $("w-name").textContent = e.nombre;
   $("a-name").textContent = e.nombre;
