@@ -1,4 +1,4 @@
-import { MARCA, SUPABASE_URL, SUPABASE_ANON_KEY, RUTAS_LIMPIAS } from "./config.js";
+import { MARCA, SUPABASE_URL, SUPABASE_ANON_KEY, RUTAS_LIMPIAS } from "./config.js?v=7";
 
 const $ = (id) => document.getElementById(id);
 const COLORS = ["#A3195B", "#7A1F4E", "#C2185B", "#B8893B", "#1F6F78", "#2E4A8C", "#5B2A86", "#2F6B3A", "#8C3B2E", "#333333"];
